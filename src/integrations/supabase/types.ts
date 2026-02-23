@@ -1628,6 +1628,417 @@ export type Database = {
           },
         ]
       }
+      rh_abonos: {
+        Row: {
+          created_at: string
+          fecha: string
+          id: string
+          monto: number
+          notas: string | null
+          prestamo_id: string
+        }
+        Insert: {
+          created_at?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          prestamo_id: string
+        }
+        Update: {
+          created_at?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          prestamo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_abonos_prestamo_id_fkey"
+            columns: ["prestamo_id"]
+            isOneToOne: false
+            referencedRelation: "rh_prestamos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_descuentos: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          empleado_id: string
+          fecha: string
+          id: string
+          monto: number
+          notas: string | null
+          tipo_descuento_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          empleado_id: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          tipo_descuento_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          empleado_id?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          tipo_descuento_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_descuentos_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rh_descuentos_tipo_descuento_id_fkey"
+            columns: ["tipo_descuento_id"]
+            isOneToOne: false
+            referencedRelation: "rh_tipos_descuento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_faltas: {
+        Row: {
+          created_at: string
+          empleado_id: string
+          fecha: string
+          id: string
+          motivo: string | null
+          notas: string | null
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          empleado_id: string
+          fecha?: string
+          id?: string
+          motivo?: string | null
+          notas?: string | null
+          tipo?: string
+        }
+        Update: {
+          created_at?: string
+          empleado_id?: string
+          fecha?: string
+          id?: string
+          motivo?: string | null
+          notas?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_faltas_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_incapacidades: {
+        Row: {
+          created_at: string
+          dias: number
+          empleado_id: string
+          fecha_fin: string | null
+          fecha_inicio: string
+          folio_imss: string | null
+          id: string
+          notas: string | null
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          dias?: number
+          empleado_id: string
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          folio_imss?: string | null
+          id?: string
+          notas?: string | null
+          tipo?: string
+        }
+        Update: {
+          created_at?: string
+          dias?: number
+          empleado_id?: string
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          folio_imss?: string | null
+          id?: string
+          notas?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_incapacidades_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_pagos_empleados: {
+        Row: {
+          created_at: string
+          descuentos: number
+          empleado_id: string
+          fecha: string
+          id: string
+          notas: string | null
+          periodo: string
+          prestamos_descuento: number
+          salario_base: number
+          tiempo_extra: number
+          total: number
+        }
+        Insert: {
+          created_at?: string
+          descuentos?: number
+          empleado_id: string
+          fecha?: string
+          id?: string
+          notas?: string | null
+          periodo?: string
+          prestamos_descuento?: number
+          salario_base?: number
+          tiempo_extra?: number
+          total?: number
+        }
+        Update: {
+          created_at?: string
+          descuentos?: number
+          empleado_id?: string
+          fecha?: string
+          id?: string
+          notas?: string | null
+          periodo?: string
+          prestamos_descuento?: number
+          salario_base?: number
+          tiempo_extra?: number
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_pagos_empleados_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_prestamos: {
+        Row: {
+          abono_quincenal: number
+          created_at: string
+          empleado_id: string
+          fecha: string
+          id: string
+          monto: number
+          notas: string | null
+          plazo_quincenas: number
+          saldo: number
+          status: string
+          tipo_prestamo_id: string | null
+        }
+        Insert: {
+          abono_quincenal?: number
+          created_at?: string
+          empleado_id: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          plazo_quincenas?: number
+          saldo?: number
+          status?: string
+          tipo_prestamo_id?: string | null
+        }
+        Update: {
+          abono_quincenal?: number
+          created_at?: string
+          empleado_id?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          plazo_quincenas?: number
+          saldo?: number
+          status?: string
+          tipo_prestamo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_prestamos_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rh_prestamos_tipo_prestamo_id_fkey"
+            columns: ["tipo_prestamo_id"]
+            isOneToOne: false
+            referencedRelation: "rh_tipos_prestamo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_tiempo_extra: {
+        Row: {
+          autorizado_por: string | null
+          created_at: string
+          empleado_id: string
+          fecha: string
+          horas: number
+          id: string
+          monto: number
+          notas: string | null
+          tipo: string
+        }
+        Insert: {
+          autorizado_por?: string | null
+          created_at?: string
+          empleado_id: string
+          fecha?: string
+          horas?: number
+          id?: string
+          monto?: number
+          notas?: string | null
+          tipo?: string
+        }
+        Update: {
+          autorizado_por?: string | null
+          created_at?: string
+          empleado_id?: string
+          fecha?: string
+          horas?: number
+          id?: string
+          monto?: number
+          notas?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_tiempo_extra_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rh_tipos_descuento: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+          porcentaje_default: number | null
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          porcentaje_default?: number | null
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          porcentaje_default?: number | null
+        }
+        Relationships: []
+      }
+      rh_tipos_prestamo: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+          plazo_max_quincenas: number | null
+          tasa_interes: number | null
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          plazo_max_quincenas?: number | null
+          tasa_interes?: number | null
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          plazo_max_quincenas?: number | null
+          tasa_interes?: number | null
+        }
+        Relationships: []
+      }
+      rh_vacaciones: {
+        Row: {
+          aprobado_por: string | null
+          created_at: string
+          dias: number
+          empleado_id: string
+          fecha_fin: string
+          fecha_inicio: string
+          id: string
+          notas: string | null
+          status: string
+        }
+        Insert: {
+          aprobado_por?: string | null
+          created_at?: string
+          dias?: number
+          empleado_id: string
+          fecha_fin: string
+          fecha_inicio: string
+          id?: string
+          notas?: string | null
+          status?: string
+        }
+        Update: {
+          aprobado_por?: string | null
+          created_at?: string
+          dias?: number
+          empleado_id?: string
+          fecha_fin?: string
+          fecha_inicio?: string
+          id?: string
+          notas?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rh_vacaciones_empleado_id_fkey"
+            columns: ["empleado_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
