@@ -146,10 +146,28 @@ const Compras = () => {
           <DialogHeader><DialogTitle>OC {detail?.folio} — {(detail as any)?.proveedores?.nombre || "Sin proveedor"}</DialogTitle></DialogHeader>
           {detail && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="grid grid-cols-3 gap-4 text-sm flex-1">
+               <div className="flex items-center justify-between">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm flex-1">
                   <div><p className="text-muted-foreground">Estado</p><span className={`px-2 py-1 rounded-full text-xs font-medium ${sc[detail.status]?.cls}`}>{sc[detail.status]?.label}</span></div>
                   <div><p className="text-muted-foreground">BOM</p><p className="font-mono">{(detail as any)?.bom?.folio || "—"}</p></div>
+                  <div>
+                    <p className="text-muted-foreground">Proveedor</p>
+                    <Select
+                      value={(detail as any).proveedor_id || ""}
+                      onValueChange={async (val) => {
+                        await updateMut.mutateAsync({ id: detail.id, proveedor_id: val || null });
+                      }}
+                    >
+                      <SelectTrigger className="w-full mt-1 h-8 text-xs">
+                        <SelectValue placeholder="Sin proveedor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {proveedores?.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div><p className="text-muted-foreground">Total</p><p className="font-mono font-semibold text-primary">${Number(detail.total).toLocaleString()}</p></div>
                 </div>
                 <PrintDocument
