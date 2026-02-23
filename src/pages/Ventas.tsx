@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -24,6 +25,7 @@ const Ventas = () => {
   const verificarStockMut = useVerificarStock();
   const generarOCMut = useGenerarOCFromFaltantes();
   const generarOCDirectaMut = useGenerarOCDirecta();
+  const { data: proveedores } = useProveedores();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const { data: detail } = useCotizacion(detailId);
@@ -32,6 +34,7 @@ const Ventas = () => {
   // Stock verification
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
   const [stockResults, setStockResults] = useState<any[]>([]);
+  const [selectedProveedor, setSelectedProveedor] = useState<string>("");
 
   // Only show ventas (confirmed) and convertidas
   const ventas = allCotizaciones?.filter(c => c.status === "venta" || c.status === "convertida") || [];
@@ -74,12 +77,13 @@ const Ventas = () => {
 
   const handleGenerarOCDirecta = async () => {
     if (!detail?.cotizacion_items) return;
+    const provId = selectedProveedor || undefined;
     for (const item of detail.cotizacion_items) {
       const invId = (item as any).inventario_id;
       if (!invId) continue;
       const prod = inventario?.find(i => i.id === invId);
       if (!prod || !(prod as any).es_fabricable) continue;
-      await generarOCDirectaMut.mutateAsync({ productoId: invId, cantidad: Number(item.cantidad) });
+      await generarOCDirectaMut.mutateAsync({ productoId: invId, cantidad: Number(item.cantidad), proveedorId: provId });
     }
   };
 
@@ -200,9 +204,21 @@ const Ventas = () => {
                 <Button variant="outline" onClick={handleVerificarStock} disabled={verificarStockMut.isPending}>
                   <AlertTriangle className="h-4 w-4 mr-2" />Verificar Stock
                 </Button>
-                <Button variant="outline" onClick={handleGenerarOCDirecta} disabled={generarOCDirectaMut.isPending}>
-                  <ShoppingCart className="h-4 w-4 mr-2" />{generarOCDirectaMut.isPending ? "Generando..." : "Generar OC"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Select value={selectedProveedor} onValueChange={setSelectedProveedor}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Seleccionar proveedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {proveedores?.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" onClick={handleGenerarOCDirecta} disabled={generarOCDirectaMut.isPending}>
+                    <ShoppingCart className="h-4 w-4 mr-2" />{generarOCDirectaMut.isPending ? "Generando..." : "Generar OC"}
+                  </Button>
+                </div>
                 <PrintDocument
                   title="Orden de Venta"
                   folio={detail.folio}
