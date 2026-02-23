@@ -16,10 +16,21 @@ import OperadorView from "./pages/OperadorView";
 import Calidad from "./pages/Calidad";
 import Mantenimiento from "./pages/Mantenimiento";
 import Inventario from "./pages/Inventario";
-import RecursosHumanos from "./pages/RecursosHumanos";
 import Gastos from "./pages/Gastos";
 import Metrologia from "./pages/Metrologia";
 import NotFound from "./pages/NotFound";
+
+// RH pages
+import RHEmpleados from "./pages/rh/RHEmpleados";
+import RHIncapacidades from "./pages/rh/RHIncapacidades";
+import RHTiempoExtra from "./pages/rh/RHTiempoExtra";
+import RHFaltas from "./pages/rh/RHFaltas";
+import RHVacaciones from "./pages/rh/RHVacaciones";
+import RHDescuentos from "./pages/rh/RHDescuentos";
+import RHPrestamos from "./pages/rh/RHPrestamos";
+import RHPagos from "./pages/rh/RHPagos";
+import RHEstadoCuenta from "./pages/rh/RHEstadoCuenta";
+import RHCatalogos from "./pages/rh/RHCatalogos";
 
 const queryClient = new QueryClient();
 
@@ -42,9 +53,19 @@ const App = () => (
             <Route path="calidad" element={<Calidad />} />
             <Route path="mantenimiento" element={<Mantenimiento />} />
             <Route path="inventario" element={<Inventario />} />
-            <Route path="rrhh" element={<RecursosHumanos />} />
             <Route path="gastos" element={<Gastos />} />
             <Route path="metrologia" element={<Metrologia />} />
+            {/* RH routes */}
+            <Route path="rrhh/empleados" element={<RHEmpleados />} />
+            <Route path="rrhh/incapacidades" element={<RHIncapacidades />} />
+            <Route path="rrhh/tiempo-extra" element={<RHTiempoExtra />} />
+            <Route path="rrhh/faltas" element={<RHFaltas />} />
+            <Route path="rrhh/vacaciones" element={<RHVacaciones />} />
+            <Route path="rrhh/descuentos" element={<RHDescuentos />} />
+            <Route path="rrhh/prestamos" element={<RHPrestamos />} />
+            <Route path="rrhh/pagos" element={<RHPagos />} />
+            <Route path="rrhh/estado-cuenta" element={<RHEstadoCuenta />} />
+            <Route path="rrhh/catalogos" element={<RHCatalogos />} />
           </Route>
           <Route path="/operador" element={<OperadorView />} />
           <Route path="*" element={<NotFound />} />

@@ -2,7 +2,9 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, FileText, Package, ShoppingCart,
   Factory, Cpu, ClipboardCheck, Wrench, Warehouse,
-  DollarSign, UserCog, X, Monitor, Ruler, HandCoins
+  DollarSign, X, Monitor, Ruler, HandCoins,
+  UserCog, Clock, CalendarOff, Palmtree, BadgeMinus,
+  Banknote, CreditCard, FileBarChart, BookOpen
 } from "lucide-react";
 import logoMrisa from "@/assets/logo-mrisa.png";
 
@@ -34,10 +36,24 @@ const navGroups = [
     ],
   },
   {
+    label: "RECURSOS HUMANOS",
+    items: [
+      { to: "/rrhh/empleados", icon: UserCog, label: "Empleados" },
+      { to: "/rrhh/incapacidades", icon: CalendarOff, label: "Incapacidades" },
+      { to: "/rrhh/tiempo-extra", icon: Clock, label: "Tiempo Extra" },
+      { to: "/rrhh/faltas", icon: BadgeMinus, label: "Faltas" },
+      { to: "/rrhh/vacaciones", icon: Palmtree, label: "Vacaciones" },
+      { to: "/rrhh/descuentos", icon: BadgeMinus, label: "Descuentos" },
+      { to: "/rrhh/prestamos", icon: Banknote, label: "Préstamos" },
+      { to: "/rrhh/pagos", icon: CreditCard, label: "Pagos" },
+      { to: "/rrhh/estado-cuenta", icon: FileBarChart, label: "Estado de Cuenta" },
+      { to: "/rrhh/catalogos", icon: BookOpen, label: "Catálogos" },
+    ],
+  },
+  {
     label: "GESTIÓN",
     items: [
       { to: "/mantenimiento", icon: Wrench, label: "Mantenimiento" },
-      { to: "/rrhh", icon: UserCog, label: "Recursos Humanos" },
       { to: "/gastos", icon: DollarSign, label: "Gastos" },
     ],
   },
