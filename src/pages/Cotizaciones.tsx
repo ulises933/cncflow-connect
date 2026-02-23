@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Eye, Trash2, ArrowRightLeft, X, Package, AlertTriangle, ShoppingCart } from "lucide-react";
+import { Plus, Eye, Trash2, ArrowRightLeft, X, Package, AlertTriangle, ShoppingCart, CheckCircle } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
 import { useCotizaciones, useCreateCotizacion, useUpdateCotizacion, useDeleteCotizacion, useCotizacion, useCreateCotizacionItem, useDeleteCotizacionItem, useClientes, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes } from "@/hooks/useSupabaseData";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,9 +15,9 @@ import { toast } from "sonner";
 
 const statusColors: Record<string, string> = {
   borrador: "bg-secondary text-secondary-foreground", enviada: "bg-info/20 text-info",
-  aprobada: "bg-success/20 text-success", rechazada: "bg-destructive/20 text-destructive", convertida: "bg-primary/20 text-primary",
+  aprobada: "bg-success/20 text-success", rechazada: "bg-destructive/20 text-destructive", venta: "bg-accent text-accent-foreground", convertida: "bg-primary/20 text-primary",
 };
-const statusLabels: Record<string, string> = { borrador: "Borrador", enviada: "Enviada", aprobada: "Aprobada", rechazada: "Rechazada", convertida: "Convertida" };
+const statusLabels: Record<string, string> = { borrador: "Borrador", enviada: "Enviada", aprobada: "Aprobada", rechazada: "Rechazada", venta: "Orden de Venta", convertida: "Convertida" };
 
 const recalcTotals = async (cotizacionId: string, margen: number, updateMut: any) => {
   const { data } = await supabase.from("cotizacion_items").select("subtotal").eq("cotizacion_id", cotizacionId);
@@ -135,6 +135,12 @@ const Cotizaciones = () => {
     setTimeout(() => recalcTotals(detailId, detail?.margen_porcentaje || 30, updateMut), 300);
   };
 
+  const handleConfirmarVenta = async (id: string) => {
+    await updateMut.mutateAsync({ id, status: "venta" });
+    toast.success("Cotización confirmada como Orden de Venta");
+    setDetailId(null);
+  };
+
   const handleConvert = async (id: string) => {
     await convertMut.mutateAsync(id);
     setDetailId(null);
@@ -181,7 +187,7 @@ const Cotizaciones = () => {
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {["all", "borrador", "enviada", "aprobada", "rechazada", "convertida"].map(s => (
+        {["all", "borrador", "enviada", "aprobada", "rechazada", "venta", "convertida"].map(s => (
           <Button key={s} variant={filter === s ? "default" : "outline"} size="sm" onClick={() => setFilter(s)}>
             {s === "all" ? "Todas" : statusLabels[s]}
           </Button>
@@ -210,7 +216,7 @@ const Cotizaciones = () => {
                       <td className="py-3 px-4">
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" onClick={() => setDetailId(q.id)}><Eye className="h-4 w-4" /></Button>
-                          {q.status === "aprobada" && <Button variant="ghost" size="icon" onClick={() => handleConvert(q.id)} title="Convertir a OP"><ArrowRightLeft className="h-4 w-4 text-success" /></Button>}
+                          {q.status === "aprobada" && <Button variant="ghost" size="icon" onClick={() => handleConfirmarVenta(q.id)} title="Confirmar como Orden de Venta"><CheckCircle className="h-4 w-4 text-success" /></Button>}
                           <Button variant="ghost" size="icon" onClick={() => deleteMut.mutate(q.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </div>
                       </td>
@@ -262,7 +268,7 @@ const Cotizaciones = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div><p className="text-muted-foreground">Cliente</p><p className="font-semibold">{(detail as any).clientes?.nombre || "—"}</p></div>
                 <div><p className="text-muted-foreground">Estado</p>
-                  <Select value={detail.status} onValueChange={v => updateMut.mutateAsync({ id: detail.id, status: v })} disabled={detail.status === "convertida"}>
+                  <Select value={detail.status} onValueChange={v => updateMut.mutateAsync({ id: detail.id, status: v })} disabled={detail.status === "convertida" || detail.status === "venta"}>
                     <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                     <SelectContent>{["borrador","enviada","aprobada","rechazada"].map(s => <SelectItem key={s} value={s}>{statusLabels[s]}</SelectItem>)}</SelectContent>
                   </Select>
@@ -273,8 +279,8 @@ const Cotizaciones = () => {
 
               <div className="flex gap-2 flex-wrap">
                 {detail.status === "aprobada" && (
-                  <Button onClick={() => handleConvert(detail.id)} className="bg-success hover:bg-success/90 text-success-foreground" disabled={convertMut.isPending}>
-                    <ArrowRightLeft className="h-4 w-4 mr-2" />{convertMut.isPending ? "Convirtiendo..." : "Convertir a OP + BOM"}
+                  <Button onClick={() => handleConfirmarVenta(detail.id)} className="bg-success hover:bg-success/90 text-success-foreground">
+                    <CheckCircle className="h-4 w-4 mr-2" />Confirmar Venta
                   </Button>
                 )}
                 <Button variant="outline" onClick={handleVerificarStockCotizacion} disabled={verificarStockMut.isPending}>
