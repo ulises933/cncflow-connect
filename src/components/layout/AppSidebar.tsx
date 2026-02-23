@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, FileText, Package, ShoppingCart,
   Factory, Cpu, ClipboardCheck, Wrench, Warehouse,
-  DollarSign, UserCog, X, Monitor, Ruler
+  DollarSign, UserCog, X, Monitor, Ruler, HandCoins
 } from "lucide-react";
 import logoMrisa from "@/assets/logo-mrisa.png";
 
@@ -13,6 +13,7 @@ const navGroups = [
       { to: "/", icon: LayoutDashboard, label: "Dashboard" },
       { to: "/clientes", icon: Users, label: "Clientes" },
       { to: "/cotizaciones", icon: FileText, label: "Cotizaciones" },
+      { to: "/ventas", icon: HandCoins, label: "Ventas" },
     ],
   },
   {
