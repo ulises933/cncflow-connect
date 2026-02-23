@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ const Ventas = () => {
   const convertMut = useConvertirCotizacion();
   const verificarStockMut = useVerificarStock();
   const generarOCMut = useGenerarOCFromFaltantes();
+  const generarOCDirectaMut = useGenerarOCDirecta();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const { data: detail } = useCotizacion(detailId);
@@ -69,6 +70,17 @@ const Ventas = () => {
     if (!faltantesAjustados.length) return;
     await generarOCMut.mutateAsync({ faltantes: faltantesAjustados });
     setStockDialogOpen(false);
+  };
+
+  const handleGenerarOCDirecta = async () => {
+    if (!detail?.cotizacion_items) return;
+    for (const item of detail.cotizacion_items) {
+      const invId = (item as any).inventario_id;
+      if (!invId) continue;
+      const prod = inventario?.find(i => i.id === invId);
+      if (!prod || !(prod as any).es_fabricable) continue;
+      await generarOCDirectaMut.mutateAsync({ productoId: invId, cantidad: Number(item.cantidad) });
+    }
   };
 
   const totalVentas = ventas.filter(v => v.status === "venta").reduce((s, v) => s + Number(v.total), 0);
@@ -187,6 +199,9 @@ const Ventas = () => {
                 )}
                 <Button variant="outline" onClick={handleVerificarStock} disabled={verificarStockMut.isPending}>
                   <AlertTriangle className="h-4 w-4 mr-2" />Verificar Stock
+                </Button>
+                <Button variant="outline" onClick={handleGenerarOCDirecta} disabled={generarOCDirectaMut.isPending}>
+                  <ShoppingCart className="h-4 w-4 mr-2" />{generarOCDirectaMut.isPending ? "Generando..." : "Generar OC"}
                 </Button>
                 <PrintDocument
                   title="Orden de Venta"
