@@ -1287,6 +1287,58 @@ export const useGenerarOCFromFaltantes = () => {
   });
 };
 
+// ============ BUSINESS LOGIC: Generar OC directa desde BOM de producto ============
+export const useGenerarOCDirecta = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ productoId, cantidad, proveedorId }: { productoId: string; cantidad: number; proveedorId?: string }) => {
+      // Fetch BOM materials for the product
+      const { data: bomItems, error: e0 } = await supabase.from("inventario_bom")
+        .select("*, material:inventario!inventario_bom_material_id_fkey(id, codigo, nombre, stock, unidad, costo_unitario, proveedor_preferido)")
+        .eq("producto_id", productoId);
+      if (e0) throw e0;
+      if (!bomItems?.length) throw new Error("Este producto no tiene materiales en su BOM");
+
+      const items = bomItems.map(item => {
+        const mat = item.material as any;
+        const cantidadTotal = Number(item.cantidad) * cantidad;
+        return {
+          nombre: mat?.nombre || item.material_id,
+          cantidad: cantidadTotal,
+          unidad: item.unidad,
+          costo_unitario: Number(mat?.costo_unitario || 0),
+        };
+      });
+
+      const total = items.reduce((s, i) => s + i.cantidad * i.costo_unitario, 0);
+      const { data: oc, error: e1 } = await supabase.from("ordenes_compra").insert({
+        proveedor_id: proveedorId || null,
+        total,
+        notas: "Generada desde Orden de Venta",
+      }).select().single();
+      if (e1) throw e1;
+
+      const ocItems = items.map(i => ({
+        orden_compra_id: oc.id,
+        material: i.nombre,
+        cantidad: i.cantidad,
+        unidad: i.unidad,
+        precio_unitario: i.costo_unitario,
+        subtotal: i.cantidad * i.costo_unitario,
+      }));
+      const { error: e2 } = await supabase.from("ordenes_compra_items").insert(ocItems);
+      if (e2) throw e2;
+
+      return oc;
+    },
+    onSuccess: (oc) => {
+      qc.invalidateQueries({ queryKey: ["ordenes_compra"] });
+      toast.success(`Orden de compra ${oc.folio} generada exitosamente`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
 // ============ BUSINESS LOGIC: Calculate BOM cost from inventario_bom ============
 export const useCalcBomCost = () => {
   return useMutation({
