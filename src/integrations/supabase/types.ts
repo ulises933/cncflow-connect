@@ -448,77 +448,146 @@ export type Database = {
       }
       empleados: {
         Row: {
+          aguinaldo: number | null
+          alergias: string | null
+          apellido_materno: string | null
+          apellido_paterno: string | null
+          calle: string | null
           capacitaciones: Json | null
           certificaciones: Json | null
+          codigo_postal: string | null
+          colonia: string | null
           contacto_emergencia: string | null
           created_at: string
           curp: string | null
           departamento: string | null
+          dias_laborales_semana: number | null
           direccion: string | null
+          documentos: Json | null
           email: string | null
+          enfermedades: string | null
+          estado_dir: string | null
           fecha_ingreso: string
           fecha_nacimiento: string | null
+          fonacot: number | null
+          foto_url: string | null
           id: string
+          imss_descuento: number | null
+          infonavit: number | null
           maquina_id: string | null
+          municipio: string | null
           nombre: string
           nss: string | null
+          numero_empleado: string | null
+          numero_exterior: string | null
+          pais: string | null
           puesto: string
+          retencion_impuestos: number | null
           rfc: string | null
           salario_mensual: number | null
           status: string
+          sucursal: string | null
+          sueldo_base_semanal: number | null
           telefono: string | null
           telefono_emergencia: string | null
           tipo_contrato: string | null
+          tipo_empleado: string | null
           turno: string
           updated_at: string
         }
         Insert: {
+          aguinaldo?: number | null
+          alergias?: string | null
+          apellido_materno?: string | null
+          apellido_paterno?: string | null
+          calle?: string | null
           capacitaciones?: Json | null
           certificaciones?: Json | null
+          codigo_postal?: string | null
+          colonia?: string | null
           contacto_emergencia?: string | null
           created_at?: string
           curp?: string | null
           departamento?: string | null
+          dias_laborales_semana?: number | null
           direccion?: string | null
+          documentos?: Json | null
           email?: string | null
+          enfermedades?: string | null
+          estado_dir?: string | null
           fecha_ingreso?: string
           fecha_nacimiento?: string | null
+          fonacot?: number | null
+          foto_url?: string | null
           id?: string
+          imss_descuento?: number | null
+          infonavit?: number | null
           maquina_id?: string | null
+          municipio?: string | null
           nombre: string
           nss?: string | null
+          numero_empleado?: string | null
+          numero_exterior?: string | null
+          pais?: string | null
           puesto: string
+          retencion_impuestos?: number | null
           rfc?: string | null
           salario_mensual?: number | null
           status?: string
+          sucursal?: string | null
+          sueldo_base_semanal?: number | null
           telefono?: string | null
           telefono_emergencia?: string | null
           tipo_contrato?: string | null
+          tipo_empleado?: string | null
           turno?: string
           updated_at?: string
         }
         Update: {
+          aguinaldo?: number | null
+          alergias?: string | null
+          apellido_materno?: string | null
+          apellido_paterno?: string | null
+          calle?: string | null
           capacitaciones?: Json | null
           certificaciones?: Json | null
+          codigo_postal?: string | null
+          colonia?: string | null
           contacto_emergencia?: string | null
           created_at?: string
           curp?: string | null
           departamento?: string | null
+          dias_laborales_semana?: number | null
           direccion?: string | null
+          documentos?: Json | null
           email?: string | null
+          enfermedades?: string | null
+          estado_dir?: string | null
           fecha_ingreso?: string
           fecha_nacimiento?: string | null
+          fonacot?: number | null
+          foto_url?: string | null
           id?: string
+          imss_descuento?: number | null
+          infonavit?: number | null
           maquina_id?: string | null
+          municipio?: string | null
           nombre?: string
           nss?: string | null
+          numero_empleado?: string | null
+          numero_exterior?: string | null
+          pais?: string | null
           puesto?: string
+          retencion_impuestos?: number | null
           rfc?: string | null
           salario_mensual?: number | null
           status?: string
+          sucursal?: string | null
+          sueldo_base_semanal?: number | null
           telefono?: string | null
           telefono_emergencia?: string | null
           tipo_contrato?: string | null
+          tipo_empleado?: string | null
           turno?: string
           updated_at?: string
         }
