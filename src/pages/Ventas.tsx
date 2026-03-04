@@ -209,6 +209,11 @@ const Ventas = () => {
                     <ArrowRightLeft className="h-4 w-4 mr-2" />{convertMut.isPending ? "Convirtiendo..." : "Convertir a OP + BOM"}
                   </Button>
                 )}
+                {!(detail as any).entregado && (
+                  <Button variant="outline" onClick={async () => { await updateCotMut.mutateAsync({ id: detail.id, entregado: true }); toast.success("Marcado como entregado"); }}>
+                    <PackageCheck className="h-4 w-4 mr-2" />Marcar Entregado
+                  </Button>
+                )}
                 <Button variant="outline" onClick={handleVerificarStock} disabled={verificarStockMut.isPending}>
                   <AlertTriangle className="h-4 w-4 mr-2" />Verificar Stock
                 </Button>
