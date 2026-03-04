@@ -18,6 +18,7 @@ import Mantenimiento from "./pages/Mantenimiento";
 import Inventario from "./pages/Inventario";
 import Gastos from "./pages/Gastos";
 import Metrologia from "./pages/Metrologia";
+import CuentasPorCobrar from "./pages/CuentasPorCobrar";
 import NotFound from "./pages/NotFound";
 
 // RH pages
