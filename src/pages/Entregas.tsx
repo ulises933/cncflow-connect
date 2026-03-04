@@ -377,39 +377,32 @@ const Entregas = () => {
       {/* Print */}
       {printEntrega && (
         <PrintDocument
-          title={`Comprobante de Entrega — ${printEntrega.folio}`}
-          onClose={() => setPrintEntrega(null)}
+          title="Comprobante de Entrega"
+          folio={printEntrega.folio}
+          fecha={printEntrega.fecha_entrega}
+          clienteNombre={getClienteNombre(printEntrega.cliente_id)}
         >
-          <div className="space-y-4 text-sm">
-            <div className="grid grid-cols-2 gap-4">
-              <div><strong>Folio:</strong> {printEntrega.folio}</div>
-              <div><strong>Fecha:</strong> {printEntrega.fecha_entrega}</div>
-              <div><strong>Orden:</strong> {getOrdenFolio(printEntrega.orden_id)}</div>
-              <div><strong>Cliente:</strong> {getClienteNombre(printEntrega.cliente_id)}</div>
-            </div>
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left">Producto</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center">Ordenado</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center">Entregado</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border border-gray-300 px-3 py-2">{printEntrega.producto}</td>
-                  <td className="border border-gray-300 px-3 py-2 text-center">{printEntrega.cantidad_ordenada}</td>
-                  <td className="border border-gray-300 px-3 py-2 text-center">{printEntrega.cantidad_entregada}</td>
-                  <td className="border border-gray-300 px-3 py-2 text-center">{statusConfig[printEntrega.status]?.label}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="grid grid-cols-2 gap-8 mt-8 pt-4">
-              <div className="text-center border-t border-gray-400 pt-2">Entregó</div>
-              <div className="text-center border-t border-gray-400 pt-2">Recibió: {printEntrega.recibio || "________________"}</div>
-            </div>
-            {printEntrega.notas && <div><strong>Notas:</strong> {printEntrega.notas}</div>}
+          <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ccc" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f5f5f5" }}>
+                <th style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "left" }}>Producto</th>
+                <th style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "center" }}>Ordenado</th>
+                <th style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "center" }}>Entregado</th>
+                <th style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "center" }}>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ border: "1px solid #ccc", padding: "6px 10px" }}>{printEntrega.producto}</td>
+                <td style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "center" }}>{printEntrega.cantidad_ordenada}</td>
+                <td style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "center" }}>{printEntrega.cantidad_entregada}</td>
+                <td style={{ border: "1px solid #ccc", padding: "6px 10px", textAlign: "center" }}>{statusConfig[printEntrega.status]?.label}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginTop: "3rem", paddingTop: "1rem" }}>
+            <div style={{ textAlign: "center", borderTop: "1px solid #999", paddingTop: "0.5rem" }}>Entregó</div>
+            <div style={{ textAlign: "center", borderTop: "1px solid #999", paddingTop: "0.5rem" }}>Recibió: {printEntrega.recibio || "________________"}</div>
           </div>
         </PrintDocument>
       )}
