@@ -553,6 +553,66 @@ export type Database = {
           },
         ]
       }
+      cuentas_por_pagar: {
+        Row: {
+          created_at: string
+          fecha_emision: string
+          fecha_vencimiento: string | null
+          folio: string
+          id: string
+          monto: number
+          notas: string | null
+          orden_compra_id: string | null
+          proveedor_id: string | null
+          saldo: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fecha_emision?: string
+          fecha_vencimiento?: string | null
+          folio?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          orden_compra_id?: string | null
+          proveedor_id?: string | null
+          saldo?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fecha_emision?: string
+          fecha_vencimiento?: string | null
+          folio?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          orden_compra_id?: string | null
+          proveedor_id?: string | null
+          saldo?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cuentas_por_pagar_orden_compra_id_fkey"
+            columns: ["orden_compra_id"]
+            isOneToOne: false
+            referencedRelation: "ordenes_compra"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cuentas_por_pagar_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "proveedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empleados: {
         Row: {
           aguinaldo: number | null
@@ -1433,6 +1493,50 @@ export type Database = {
           },
         ]
       }
+      pagos_proveedores: {
+        Row: {
+          created_at: string
+          cuenta_por_pagar_id: string
+          fecha: string
+          folio: string
+          id: string
+          metodo_pago: string
+          monto: number
+          notas: string | null
+          referencia: string | null
+        }
+        Insert: {
+          created_at?: string
+          cuenta_por_pagar_id: string
+          fecha?: string
+          folio?: string
+          id?: string
+          metodo_pago?: string
+          monto?: number
+          notas?: string | null
+          referencia?: string | null
+        }
+        Update: {
+          created_at?: string
+          cuenta_por_pagar_id?: string
+          fecha?: string
+          folio?: string
+          id?: string
+          metodo_pago?: string
+          monto?: number
+          notas?: string | null
+          referencia?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagos_proveedores_cuenta_por_pagar_id_fkey"
+            columns: ["cuenta_por_pagar_id"]
+            isOneToOne: false
+            referencedRelation: "cuentas_por_pagar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       procesos_produccion: {
         Row: {
           avance: number | null
@@ -1597,6 +1701,7 @@ export type Database = {
       }
       proveedores: {
         Row: {
+          categoria: string | null
           contacto: string | null
           created_at: string
           direccion: string | null
@@ -1608,6 +1713,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          categoria?: string | null
           contacto?: string | null
           created_at?: string
           direccion?: string | null
@@ -1619,6 +1725,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          categoria?: string | null
           contacto?: string | null
           created_at?: string
           direccion?: string | null
