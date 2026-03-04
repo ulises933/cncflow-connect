@@ -387,6 +387,91 @@ export const useCreateProveedor = () => {
   });
 };
 
+export const useUpdateProveedor = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...values }: { id: string; [key: string]: any }) => {
+      const { error } = await supabase.from("proveedores").update(values).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["proveedores"] }); toast.success("Proveedor actualizado"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+export const useDeleteProveedor = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("proveedores").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["proveedores"] }); toast.success("Proveedor eliminado"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+// ============ CUENTAS POR PAGAR ============
+export const useCuentasPorPagar = () =>
+  useQuery({
+    queryKey: ["cuentas_por_pagar"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("cuentas_por_pagar").select("*, proveedores(nombre), ordenes_compra(folio)").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+export const useCreateCuentaPorPagar = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: { orden_compra_id?: string; proveedor_id?: string; monto: number; saldo?: number; fecha_vencimiento?: string; notas?: string }) => {
+      const { data, error } = await supabase.from("cuentas_por_pagar").insert({ ...values, saldo: values.saldo ?? values.monto }).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cuentas_por_pagar"] }); toast.success("Cuenta por pagar creada"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+export const useUpdateCuentaPorPagar = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...values }: { id: string; [key: string]: any }) => {
+      const { error } = await supabase.from("cuentas_por_pagar").update(values).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cuentas_por_pagar"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+// ============ PAGOS PROVEEDORES ============
+export const usePagosProveedores = (cuentaId: string | null) =>
+  useQuery({
+    queryKey: ["pagos_proveedores", cuentaId],
+    enabled: !!cuentaId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("pagos_proveedores").select("*").eq("cuenta_por_pagar_id", cuentaId!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+export const useCreatePagoProveedor = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: { cuenta_por_pagar_id: string; monto: number; metodo_pago?: string; referencia?: string; notas?: string }) => {
+      const { data, error } = await supabase.from("pagos_proveedores").insert(values).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => { qc.invalidateQueries({ queryKey: ["pagos_proveedores", vars.cuenta_por_pagar_id] }); qc.invalidateQueries({ queryKey: ["cuentas_por_pagar"] }); toast.success("Pago registrado"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
 // ============ ORDENES DE COMPRA ============
 export const useOrdenesCompra = () =>
   useQuery({
