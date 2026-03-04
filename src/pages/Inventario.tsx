@@ -254,16 +254,21 @@ const Inventario = () => {
                         <td className="py-3 px-4 font-mono text-muted-foreground">${Number(i.costo_unitario).toLocaleString()}</td>
                         <td className="py-3 px-4"><span className={`px-2 py-1 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span></td>
                         <td className="py-3 px-4">
-                          {isFab && (
-                            <div className="flex gap-1">
-                              <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("bom"); }}>
-                                <List className="h-3 w-3 mr-1" />BOM
-                              </Button>
-                              <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("procesos"); }}>
-                                <Settings2 className="h-3 w-3 mr-1" />Procesos
-                              </Button>
-                            </div>
-                          )}
+                          <div className="flex gap-1">
+                            {isFab && (
+                              <>
+                                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("bom"); }}>
+                                  <List className="h-3 w-3 mr-1" />BOM
+                                </Button>
+                                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("procesos"); }}>
+                                  <Settings2 className="h-3 w-3 mr-1" />Procesos
+                                </Button>
+                              </>
+                            )}
+                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("documentos"); }}>
+                              <FileText className="h-3 w-3 mr-1" />Docs
+                            </Button>
+                          </div>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex gap-1">
