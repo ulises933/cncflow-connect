@@ -19,6 +19,8 @@ import Inventario from "./pages/Inventario";
 import Gastos from "./pages/Gastos";
 import Metrologia from "./pages/Metrologia";
 import CuentasPorCobrar from "./pages/CuentasPorCobrar";
+import CuentasPorPagar from "./pages/CuentasPorPagar";
+import Proveedores from "./pages/Proveedores";
 import NotFound from "./pages/NotFound";
 
 // RH pages
