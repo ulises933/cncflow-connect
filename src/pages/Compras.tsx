@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Eye, Trash2, PackageCheck, Package, TruckIcon } from "lucide-react";
+import { Plus, Eye, Trash2, PackageCheck, Package, TruckIcon, Receipt } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useOrdenesCompra, useOrdenCompra, useCreateOrdenCompra, useUpdateOrdenCompra, useDeleteOrdenCompra, useCreateOrdenCompraItem, useProveedores, useCreateProveedor, useRecibirOrdenCompra, useRecibirParcialOC } from "@/hooks/useSupabaseData";
+import { useOrdenesCompra, useOrdenCompra, useCreateOrdenCompra, useUpdateOrdenCompra, useDeleteOrdenCompra, useCreateOrdenCompraItem, useProveedores, useCreateProveedor, useRecibirOrdenCompra, useRecibirParcialOC, useCuentasPorPagar, useCreateCuentaPorPagar } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -29,6 +29,8 @@ const Compras = () => {
   const createItemMut = useCreateOrdenCompraItem();
   const recibirMut = useRecibirOrdenCompra();
   const recibirParcialMut = useRecibirParcialOC();
+  const { data: cuentasPorPagar } = useCuentasPorPagar();
+  const createCxPMut = useCreateCuentaPorPagar();
   const [createOpen, setCreateOpen] = useState(false);
   const [provOpen, setProvOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -262,14 +264,45 @@ const Compras = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button onClick={handleOpenEntrega} variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                      <TruckIcon className="h-4 w-4 mr-2" />Registrar Entrega Parcial
-                    </Button>
-                    <Button onClick={() => handleRecibir(detail.id)} className="bg-success hover:bg-success/90 text-success-foreground" disabled={recibirMut.isPending}>
-                      <PackageCheck className="h-4 w-4 mr-2" />Recibir Todo
-                    </Button>
+              {(() => {
+                const cxpExists = cuentasPorPagar?.find((c: any) => c.orden_compra_id === detail.id);
+                return (
+                  <div className="space-y-3">
+                    {!cxpExists && (
+                      <Button
+                        variant="outline"
+                        className="w-full border-primary text-primary hover:bg-primary/10"
+                        onClick={async () => {
+                          await updateMut.mutateAsync({ id: detail.id, status: "ordenado" });
+                          await createCxPMut.mutateAsync({
+                            orden_compra_id: detail.id,
+                            proveedor_id: (detail as any).proveedor_id || undefined,
+                            monto: Number(detail.total),
+                            fecha_vencimiento: (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().split("T")[0]; })(),
+                          });
+                          toast.success("OC confirmada y CXP generada");
+                        }}
+                        disabled={createCxPMut.isPending}
+                      >
+                        <Receipt className="h-4 w-4 mr-2" />{createCxPMut.isPending ? "Generando..." : "Confirmar OC → Generar CXP"}
+                      </Button>
+                    )}
+                    {cxpExists && (
+                      <p className="text-xs text-center px-2 py-1 rounded-full bg-success/10 text-success font-medium">
+                        ✓ CXP generada: {cxpExists.folio} — Saldo: ${Number(cxpExists.saldo).toLocaleString()}
+                      </p>
+                    )}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button onClick={handleOpenEntrega} variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                        <TruckIcon className="h-4 w-4 mr-2" />Registrar Entrega Parcial
+                      </Button>
+                      <Button onClick={() => handleRecibir(detail.id)} className="bg-success hover:bg-success/90 text-success-foreground" disabled={recibirMut.isPending}>
+                        <PackageCheck className="h-4 w-4 mr-2" />Recibir Todo
+                      </Button>
+                    </div>
                   </div>
+                );
+              })()}
                 </>
               )}
 

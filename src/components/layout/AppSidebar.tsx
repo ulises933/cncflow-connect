@@ -4,7 +4,7 @@ import {
   Factory, Cpu, ClipboardCheck, Wrench, Warehouse,
   DollarSign, X, Monitor, Ruler, HandCoins,
   UserCog, Clock, CalendarOff, Palmtree, BadgeMinus,
-  Banknote, CreditCard, FileBarChart, BookOpen
+  Banknote, CreditCard, FileBarChart, BookOpen, Truck, Receipt
 } from "lucide-react";
 import logoMrisa from "@/assets/logo-mrisa.png";
 
@@ -31,6 +31,8 @@ const navGroups = [
     label: "OPERACIONES",
     items: [
       { to: "/compras", icon: ShoppingCart, label: "Compras" },
+      { to: "/proveedores", icon: Truck, label: "Proveedores" },
+      { to: "/cuentas-por-pagar", icon: Receipt, label: "Cuentas x Pagar" },
       { to: "/inventario", icon: Warehouse, label: "Inventario" },
       { to: "/calidad", icon: ClipboardCheck, label: "Calidad" },
       { to: "/metrologia", icon: Ruler, label: "Metrología" },
