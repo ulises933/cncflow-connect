@@ -768,6 +768,79 @@ export type Database = {
           },
         ]
       }
+      entregas: {
+        Row: {
+          cantidad_entregada: number
+          cantidad_ordenada: number
+          cliente_id: string | null
+          cotizacion_id: string | null
+          created_at: string
+          fecha_entrega: string
+          folio: string
+          id: string
+          notas: string | null
+          orden_id: string | null
+          producto: string
+          recibio: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cantidad_entregada?: number
+          cantidad_ordenada?: number
+          cliente_id?: string | null
+          cotizacion_id?: string | null
+          created_at?: string
+          fecha_entrega?: string
+          folio?: string
+          id?: string
+          notas?: string | null
+          orden_id?: string | null
+          producto: string
+          recibio?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cantidad_entregada?: number
+          cantidad_ordenada?: number
+          cliente_id?: string | null
+          cotizacion_id?: string | null
+          created_at?: string
+          fecha_entrega?: string
+          folio?: string
+          id?: string
+          notas?: string | null
+          orden_id?: string | null
+          producto?: string
+          recibio?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entregas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entregas_cotizacion_id_fkey"
+            columns: ["cotizacion_id"]
+            isOneToOne: false
+            referencedRelation: "cotizaciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entregas_orden_id_fkey"
+            columns: ["orden_id"]
+            isOneToOne: false
+            referencedRelation: "ordenes_produccion"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       especificaciones_gdt: {
         Row: {
           caracteristica: string
