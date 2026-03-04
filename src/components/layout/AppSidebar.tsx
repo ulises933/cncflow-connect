@@ -4,7 +4,7 @@ import {
   Factory, Cpu, ClipboardCheck, Wrench, Warehouse,
   DollarSign, X, Monitor, Ruler, HandCoins,
   UserCog, Clock, CalendarOff, Palmtree, BadgeMinus,
-  Banknote, CreditCard, FileBarChart, BookOpen
+  Banknote, CreditCard, FileBarChart, BookOpen, Truck, Receipt
 } from "lucide-react";
 import logoMrisa from "@/assets/logo-mrisa.png";
 
