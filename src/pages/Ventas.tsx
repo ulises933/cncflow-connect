@@ -194,6 +194,13 @@ const Ventas = () => {
                 </div>
                 <div><p className="text-muted-foreground">Subtotal</p><p className="font-mono font-semibold">${Number(detail.subtotal).toLocaleString()}</p></div>
                 <div><p className="text-muted-foreground">Total (c/IVA)</p><p className="font-mono font-semibold text-primary">${Number(detail.total).toLocaleString()}</p></div>
+                <div><p className="text-muted-foreground">Entrega</p>
+                  {(detail as any).entregado ? (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/20 text-success">✓ Entregado</span>
+                  ) : (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-700">Pendiente</span>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-2 flex-wrap">
