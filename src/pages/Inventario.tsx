@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 const tipoLabels: Record<string, string> = { materia_prima: "Materia Prima", en_proceso: "En Proceso", terminado: "Prod. Terminado", herramienta: "Herramienta", insumo: "Insumo" };
 const rutaLabels: Record<string, string> = { comprar: "Comprar", fabricar: "Fabricar", ambas: "Comprar o Fabricar" };
-const categoriaMaterialLabels: Record<string, string> = { general: "General", aceros: "Aceros", aluminios: "Aluminios", plasticos: "Plásticos", consumibles: "Consumibles", tornilleria: "Tornillería", electricos: "Eléctricos", herramientas: "Herramientas de corte", otros: "Otros" };
+const categoriaMaterialLabels: Record<string, string> = { general: "General", aceros: "Aceros", aluminios: "Aluminios", plasticos: "Plásticos", consumibles: "Consumibles", tornilleria: "Tornillería", electricos: "Eléctricos", herramientas: "Herramientas de corte", herramientas_metrologia: "Herramientas de Metrología", otros: "Otros" };
 
 const procesoTipos = [
   { value: "maquinado", label: "Maquinado CNC" }, { value: "torneado", label: "Torneado" },
