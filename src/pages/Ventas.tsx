@@ -26,6 +26,7 @@ const Ventas = () => {
   const generarOCMut = useGenerarOCFromFaltantes();
   const generarOCDirectaMut = useGenerarOCDirecta();
   const { data: proveedores } = useProveedores();
+  const updateCotMut = useUpdateCotizacion();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const { data: detail } = useCotizacion(detailId);
