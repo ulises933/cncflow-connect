@@ -25,6 +25,7 @@ type Tolerancia = { nombre: string; nominal: number; min: number; max: number };
 const Calidad = () => {
   const { data: inspecciones, isLoading } = useInspecciones();
   const { data: ordenes } = useOrdenesProduccion();
+  const { data: inventarioItems } = useInventario();
   const createMut = useCreateInspeccion();
   const updateMut = useUpdateInspeccion();
   const [createOpen, setCreateOpen] = useState(false);
