@@ -29,6 +29,8 @@ const Compras = () => {
   const createItemMut = useCreateOrdenCompraItem();
   const recibirMut = useRecibirOrdenCompra();
   const recibirParcialMut = useRecibirParcialOC();
+  const { data: cuentasPorPagar } = useCuentasPorPagar();
+  const createCxPMut = useCreateCuentaPorPagar();
   const [createOpen, setCreateOpen] = useState(false);
   const [provOpen, setProvOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
