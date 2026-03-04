@@ -417,6 +417,40 @@ const Ventas = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Cobro Dialog */}
+      <Dialog open={cobroDialogOpen} onOpenChange={setCobroDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Registrar Cobro — {cxcForDetail?.folio}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              Saldo pendiente: <span className="font-mono font-semibold text-foreground">${Number(cxcForDetail?.saldo || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="space-y-2">
+              <Label>Monto a cobrar</Label>
+              <Input type="number" value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className="space-y-2">
+              <Label>Método de pago</Label>
+              <Select value={cobroMetodo} onValueChange={setCobroMetodo}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["transferencia", "efectivo", "cheque", "tarjeta"].map(m => (
+                    <SelectItem key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Referencia (opcional)</Label>
+              <Input value={cobroReferencia} onChange={e => setCobroReferencia(e.target.value)} placeholder="Número de transferencia, cheque, etc." />
+            </div>
+            <Button onClick={handleGenerarCobro} className="w-full" disabled={createCobroMut.isPending}>
+              <DollarSign className="h-4 w-4 mr-2" />{createCobroMut.isPending ? "Registrando..." : "Confirmar Cobro"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
