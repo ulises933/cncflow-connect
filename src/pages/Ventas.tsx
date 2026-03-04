@@ -3,9 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package, PackageCheck } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package, PackageCheck, Receipt, DollarSign } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores, useUpdateCotizacion } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores, useUpdateCotizacion, useCuentasPorCobrar, useCreateCuentaPorCobrar, useCreateCobro, useUpdateCuentaPorCobrar } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -27,6 +29,10 @@ const Ventas = () => {
   const generarOCDirectaMut = useGenerarOCDirecta();
   const { data: proveedores } = useProveedores();
   const updateCotMut = useUpdateCotizacion();
+  const { data: cuentasPorCobrar } = useCuentasPorCobrar();
+  const createCxCMut = useCreateCuentaPorCobrar();
+  const createCobroMut = useCreateCobro();
+  const updateCxCMut = useUpdateCuentaPorCobrar();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const { data: detail } = useCotizacion(detailId);
@@ -36,6 +42,54 @@ const Ventas = () => {
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
   const [stockResults, setStockResults] = useState<any[]>([]);
   const [selectedProveedor, setSelectedProveedor] = useState<string>("");
+
+  // Cobro dialog
+  const [cobroDialogOpen, setCobroDialogOpen] = useState(false);
+  const [cobroMonto, setCobroMonto] = useState("");
+  const [cobroMetodo, setCobroMetodo] = useState("transferencia");
+  const [cobroReferencia, setCobroReferencia] = useState("");
+
+  // Find CxC for current detail
+  const cxcForDetail = detail ? cuentasPorCobrar?.find(c => c.cotizacion_id === detail.id) : null;
+
+  const handleCrearCxC = async () => {
+    if (!detail) return;
+    if (cxcForDetail) { toast.info("Ya existe una cuenta por cobrar para esta venta"); return; }
+    const condiciones = detail.condiciones_pago || "30 días";
+    const diasMatch = condiciones.match(/(\d+)/);
+    const dias = diasMatch ? parseInt(diasMatch[1]) : 30;
+    const venc = new Date();
+    venc.setDate(venc.getDate() + dias);
+    await createCxCMut.mutateAsync({
+      cotizacion_id: detail.id,
+      cliente_id: detail.cliente_id || undefined,
+      monto: Number(detail.total),
+      fecha_vencimiento: venc.toISOString().split("T")[0],
+    });
+  };
+
+  const handleGenerarCobro = async () => {
+    if (!cxcForDetail || !cobroMonto) return;
+    const monto = Number(cobroMonto);
+    if (monto <= 0 || monto > Number(cxcForDetail.saldo)) {
+      toast.error("Monto inválido"); return;
+    }
+    await createCobroMut.mutateAsync({
+      cuenta_por_cobrar_id: cxcForDetail.id,
+      monto,
+      metodo_pago: cobroMetodo,
+      referencia: cobroReferencia || undefined,
+    });
+    const newSaldo = Number(cxcForDetail.saldo) - monto;
+    await updateCxCMut.mutateAsync({
+      id: cxcForDetail.id,
+      saldo: newSaldo,
+      status: newSaldo <= 0 ? "cobrada" : "parcial",
+    });
+    setCobroDialogOpen(false);
+    setCobroMonto("");
+    setCobroReferencia("");
+  };
 
   // Only show ventas (confirmed) and convertidas
   const ventas = allCotizaciones?.filter(c => c.status === "venta" || c.status === "convertida") || [];
@@ -219,6 +273,23 @@ const Ventas = () => {
                     <PackageCheck className="h-4 w-4 mr-2" />Marcar Entregado
                   </Button>
                 )}
+                {!cxcForDetail ? (
+                  <Button variant="outline" onClick={handleCrearCxC} disabled={createCxCMut.isPending}>
+                    <Receipt className="h-4 w-4 mr-2" />{createCxCMut.isPending ? "Creando..." : "Convertir a Cuenta por Cobrar"}
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                      CxC: {cxcForDetail.folio} — Saldo: ${Number(cxcForDetail.saldo).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                      {cxcForDetail.status === "cobrada" ? " ✓ Cobrada" : ""}
+                    </span>
+                    {cxcForDetail.status !== "cobrada" && (
+                      <Button variant="outline" size="sm" onClick={() => { setCobroMonto(String(cxcForDetail.saldo)); setCobroDialogOpen(true); }}>
+                        <DollarSign className="h-4 w-4 mr-1" />Generar Cobro
+                      </Button>
+                    )}
+                  </div>
+                )}
                 <Button variant="outline" onClick={handleVerificarStock} disabled={verificarStockMut.isPending}>
                   <AlertTriangle className="h-4 w-4 mr-2" />Verificar Stock
                 </Button>
@@ -343,6 +414,40 @@ const Ventas = () => {
                 <ShoppingCart className="h-4 w-4 mr-2" />Generar OC con Faltantes
               </Button>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cobro Dialog */}
+      <Dialog open={cobroDialogOpen} onOpenChange={setCobroDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Registrar Cobro — {cxcForDetail?.folio}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              Saldo pendiente: <span className="font-mono font-semibold text-foreground">${Number(cxcForDetail?.saldo || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="space-y-2">
+              <Label>Monto a cobrar</Label>
+              <Input type="number" value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className="space-y-2">
+              <Label>Método de pago</Label>
+              <Select value={cobroMetodo} onValueChange={setCobroMetodo}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["transferencia", "efectivo", "cheque", "tarjeta"].map(m => (
+                    <SelectItem key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Referencia (opcional)</Label>
+              <Input value={cobroReferencia} onChange={e => setCobroReferencia(e.target.value)} placeholder="Número de transferencia, cheque, etc." />
+            </div>
+            <Button onClick={handleGenerarCobro} className="w-full" disabled={createCobroMut.isPending}>
+              <DollarSign className="h-4 w-4 mr-2" />{createCobroMut.isPending ? "Registrando..." : "Confirmar Cobro"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
