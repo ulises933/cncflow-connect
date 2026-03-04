@@ -31,6 +31,8 @@ const navGroups = [
     label: "OPERACIONES",
     items: [
       { to: "/compras", icon: ShoppingCart, label: "Compras" },
+      { to: "/proveedores", icon: Truck, label: "Proveedores" },
+      { to: "/cuentas-por-pagar", icon: Receipt, label: "Cuentas x Pagar" },
       { to: "/inventario", icon: Warehouse, label: "Inventario" },
       { to: "/calidad", icon: ClipboardCheck, label: "Calidad" },
       { to: "/metrologia", icon: Ruler, label: "Metrología" },
