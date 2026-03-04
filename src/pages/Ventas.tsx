@@ -273,6 +273,23 @@ const Ventas = () => {
                     <PackageCheck className="h-4 w-4 mr-2" />Marcar Entregado
                   </Button>
                 )}
+                {!cxcForDetail ? (
+                  <Button variant="outline" onClick={handleCrearCxC} disabled={createCxCMut.isPending}>
+                    <Receipt className="h-4 w-4 mr-2" />{createCxCMut.isPending ? "Creando..." : "Convertir a Cuenta por Cobrar"}
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                      CxC: {cxcForDetail.folio} — Saldo: ${Number(cxcForDetail.saldo).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                      {cxcForDetail.status === "cobrada" ? " ✓ Cobrada" : ""}
+                    </span>
+                    {cxcForDetail.status !== "cobrada" && (
+                      <Button variant="outline" size="sm" onClick={() => { setCobroMonto(String(cxcForDetail.saldo)); setCobroDialogOpen(true); }}>
+                        <DollarSign className="h-4 w-4 mr-1" />Generar Cobro
+                      </Button>
+                    )}
+                  </div>
+                )}
                 <Button variant="outline" onClick={handleVerificarStock} disabled={verificarStockMut.isPending}>
                   <AlertTriangle className="h-4 w-4 mr-2" />Verificar Stock
                 </Button>
