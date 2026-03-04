@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package } from "lucide-react";
+import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package, PackageCheck } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores, useUpdateCotizacion } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 

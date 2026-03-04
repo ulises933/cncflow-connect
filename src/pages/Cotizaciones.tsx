@@ -135,9 +135,26 @@ const Cotizaciones = () => {
     setTimeout(() => recalcTotals(detailId, detail?.margen_porcentaje || 30, updateMut), 300);
   };
 
+  const createCxC = useCreateCuentaPorCobrar();
+
   const handleConfirmarVenta = async (id: string) => {
+    // Get cotización data for CxC creation
+    const { data: cotData } = await supabase.from("cotizaciones").select("*, clientes(nombre)").eq("id", id).single();
     await updateMut.mutateAsync({ id, status: "venta" });
-    toast.success("Cotización confirmada como Orden de Venta");
+    // Auto-create cuenta por cobrar
+    if (cotData) {
+      const diasPago = cotData.condiciones_pago?.match(/(\d+)/)?.[1];
+      const fechaVenc = new Date();
+      fechaVenc.setDate(fechaVenc.getDate() + (diasPago ? parseInt(diasPago) : 30));
+      await createCxC.mutateAsync({
+        cotizacion_id: id,
+        cliente_id: cotData.cliente_id || undefined,
+        monto: Number(cotData.total),
+        fecha_vencimiento: fechaVenc.toISOString().split("T")[0],
+        notas: `Generada desde cotización ${cotData.folio}`,
+      });
+    }
+    toast.success("Cotización confirmada como Orden de Venta + Cuenta por Cobrar generada");
     setDetailId(null);
   };
 
