@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Eye, Upload, X, CheckCircle, XCircle, Clock, Filter } from "lucide-react";
-import { useInspecciones, useCreateInspeccion, useUpdateInspeccion, useOrdenesProduccion } from "@/hooks/useSupabaseData";
+import { Plus, Eye, Upload, X, CheckCircle, XCircle, Clock, Filter, FileText } from "lucide-react";
+import { useInspecciones, useCreateInspeccion, useUpdateInspeccion, useOrdenesProduccion, useInventario } from "@/hooks/useSupabaseData";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ type Tolerancia = { nombre: string; nominal: number; min: number; max: number };
 const Calidad = () => {
   const { data: inspecciones, isLoading } = useInspecciones();
   const { data: ordenes } = useOrdenesProduccion();
+  const { data: inventarioItems } = useInventario();
   const createMut = useCreateInspeccion();
   const updateMut = useUpdateInspeccion();
   const [createOpen, setCreateOpen] = useState(false);
@@ -423,6 +424,30 @@ const Calidad = () => {
                   </div>
                 </div>
               )}
+
+              {/* Technical docs from inventory */}
+              {(() => {
+                const orden = ordenes?.find(o => o.id === detail.orden_id);
+                const invItem = orden?.producto ? inventarioItems?.find(i => i.nombre === orden.producto || i.codigo === orden.producto) : null;
+                const docs = (invItem as any)?.documentos_tecnicos as string[] | null;
+                if (!docs?.length) return null;
+                return (
+                  <div>
+                    <h3 className="font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" />Documentos Técnicos del Producto</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {docs.map((url: string, i: number) => {
+                        const fileName = decodeURIComponent(url.split('/').pop() || `Doc ${i + 1}`).replace(/^\d+_/, '');
+                        return (
+                          <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-secondary/50 transition-colors">
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                            <span className="text-sm text-primary truncate">{fileName}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Files */}
               <div>

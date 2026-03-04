@@ -7,14 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Package, List, AlertTriangle, ShoppingCart, Search, Settings2, Clock, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, List, AlertTriangle, ShoppingCart, Search, Settings2, Clock, ArrowDown, Upload, FileText, X, Eye } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useInventario, useCreateInventario, useUpdateInventario, useDeleteInventario, useInventarioBom, useCreateInventarioBom, useDeleteInventarioBom, useVerificarStock, useGenerarOCFromFaltantes, useProveedores, useMaquinas, useProductoProcesos, useCreateProductoProceso, useUpdateProductoProceso, useDeleteProductoProceso } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 const tipoLabels: Record<string, string> = { materia_prima: "Materia Prima", en_proceso: "En Proceso", terminado: "Prod. Terminado", herramienta: "Herramienta", insumo: "Insumo" };
 const rutaLabels: Record<string, string> = { comprar: "Comprar", fabricar: "Fabricar", ambas: "Comprar o Fabricar" };
-const categoriaMaterialLabels: Record<string, string> = { general: "General", aceros: "Aceros", aluminios: "Aluminios", plasticos: "Plásticos", consumibles: "Consumibles", tornilleria: "Tornillería", electricos: "Eléctricos", herramientas: "Herramientas de corte", otros: "Otros" };
+const categoriaMaterialLabels: Record<string, string> = { general: "General", aceros: "Aceros", aluminios: "Aluminios", plasticos: "Plásticos", consumibles: "Consumibles", tornilleria: "Tornillería", electricos: "Eléctricos", herramientas: "Herramientas de corte", herramientas_metrologia: "Herramientas de Metrología", otros: "Otros" };
 
 const procesoTipos = [
   { value: "maquinado", label: "Maquinado CNC" }, { value: "torneado", label: "Torneado" },
@@ -253,16 +254,21 @@ const Inventario = () => {
                         <td className="py-3 px-4 font-mono text-muted-foreground">${Number(i.costo_unitario).toLocaleString()}</td>
                         <td className="py-3 px-4"><span className={`px-2 py-1 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span></td>
                         <td className="py-3 px-4">
-                          {isFab && (
-                            <div className="flex gap-1">
-                              <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("bom"); }}>
-                                <List className="h-3 w-3 mr-1" />BOM
-                              </Button>
-                              <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("procesos"); }}>
-                                <Settings2 className="h-3 w-3 mr-1" />Procesos
-                              </Button>
-                            </div>
-                          )}
+                          <div className="flex gap-1">
+                            {isFab && (
+                              <>
+                                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("bom"); }}>
+                                  <List className="h-3 w-3 mr-1" />BOM
+                                </Button>
+                                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("procesos"); }}>
+                                  <Settings2 className="h-3 w-3 mr-1" />Procesos
+                                </Button>
+                              </>
+                            )}
+                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setBomProductoId(i.id); setDetailTab("documentos"); }}>
+                              <FileText className="h-3 w-3 mr-1" />Docs
+                            </Button>
+                          </div>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex gap-1">
@@ -372,8 +378,9 @@ const Inventario = () => {
           {bomProducto && (
             <Tabs value={detailTab} onValueChange={setDetailTab}>
               <TabsList>
-                <TabsTrigger value="bom"><List className="h-3 w-3 mr-1" />Lista de Materiales (BOM)</TabsTrigger>
-                <TabsTrigger value="procesos"><Settings2 className="h-3 w-3 mr-1" />Ruta de Procesos</TabsTrigger>
+                {bomProducto.es_fabricable && <TabsTrigger value="bom"><List className="h-3 w-3 mr-1" />Lista de Materiales (BOM)</TabsTrigger>}
+                {bomProducto.es_fabricable && <TabsTrigger value="procesos"><Settings2 className="h-3 w-3 mr-1" />Ruta de Procesos</TabsTrigger>}
+                <TabsTrigger value="documentos"><FileText className="h-3 w-3 mr-1" />Documentos Técnicos</TabsTrigger>
               </TabsList>
 
               {/* BOM TAB */}
@@ -522,6 +529,86 @@ const Inventario = () => {
                     <p className="text-xs text-muted-foreground">Define la ruta de manufactura para este producto.</p>
                   </div>
                 )}
+              </TabsContent>
+
+              {/* DOCUMENTOS TAB */}
+              <TabsContent value="documentos" className="space-y-4 mt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Documentación técnica de <strong>{bomProducto.nombre}</strong>: planos, especificaciones, certificados, etc.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Formatos soportados: PDF, DOCX, imágenes (JPG, PNG)</p>
+                  </div>
+                </div>
+
+                {/* Existing docs */}
+                {((bomProducto as any).documentos_tecnicos?.length > 0) ? (
+                  <div className="space-y-2">
+                    {(bomProducto as any).documentos_tecnicos.map((url: string, idx: number) => {
+                      const fileName = decodeURIComponent(url.split('/').pop() || `Archivo ${idx + 1}`).replace(/^\d+_/, '');
+                      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                      return (
+                        <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/30">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="h-5 w-5 text-primary shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">{fileName}</p>
+                              <p className="text-xs text-muted-foreground">{isImage ? "Imagen" : "Documento"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <a href={url} target="_blank" rel="noopener noreferrer">
+                              <Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-4 w-4" /></Button>
+                            </a>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
+                              const currentDocs = (bomProducto as any).documentos_tecnicos || [];
+                              const newDocs = currentDocs.filter((_: string, i: number) => i !== idx);
+                              await updateMut.mutateAsync({ id: bomProducto.id, documentos_tecnicos: newDocs } as any);
+                              toast.success("Archivo eliminado");
+                            }}>
+                              <X className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center border-2 border-dashed border-border rounded-lg">
+                    <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-muted-foreground text-sm">Sin documentos técnicos.</p>
+                    <p className="text-xs text-muted-foreground">Sube planos, especificaciones o certificados.</p>
+                  </div>
+                )}
+
+                {/* Upload */}
+                <div className="p-4 rounded-lg bg-secondary/50">
+                  <Label htmlFor="doc-upload" className="cursor-pointer">
+                    <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors">
+                      <Upload className="h-5 w-5" />
+                      <span className="text-sm font-medium">Subir documentos técnicos (PDF, DOCX, imágenes)</span>
+                    </div>
+                  </Label>
+                  <input id="doc-upload" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp" className="hidden" onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files?.length || !bomProductoId) return;
+                    const uploaded: string[] = [];
+                    for (const file of Array.from(files)) {
+                      const path = `inventario/${bomProductoId}/${Date.now()}_${file.name}`;
+                      const { error } = await supabase.storage.from("quality-files").upload(path, file);
+                      if (error) { toast.error(`Error subiendo ${file.name}`); continue; }
+                      const { data: { publicUrl } } = supabase.storage.from("quality-files").getPublicUrl(path);
+                      uploaded.push(publicUrl);
+                    }
+                    if (uploaded.length) {
+                      const currentDocs = (bomProducto as any).documentos_tecnicos || [];
+                      await updateMut.mutateAsync({ id: bomProductoId, documentos_tecnicos: [...currentDocs, ...uploaded] } as any);
+                      toast.success(`${uploaded.length} documento(s) subido(s)`);
+                    }
+                    e.target.value = '';
+                  }} />
+                </div>
               </TabsContent>
             </Tabs>
           )}
