@@ -1029,6 +1029,7 @@ export type Database = {
           codigo: string
           costo_unitario: number
           created_at: string
+          documentos_tecnicos: string[] | null
           es_fabricable: boolean
           especificacion: string | null
           fecha_ultima_entrada: string | null
@@ -1054,6 +1055,7 @@ export type Database = {
           codigo: string
           costo_unitario?: number
           created_at?: string
+          documentos_tecnicos?: string[] | null
           es_fabricable?: boolean
           especificacion?: string | null
           fecha_ultima_entrada?: string | null
@@ -1079,6 +1081,7 @@ export type Database = {
           codigo?: string
           costo_unitario?: number
           created_at?: string
+          documentos_tecnicos?: string[] | null
           es_fabricable?: boolean
           especificacion?: string | null
           fecha_ultima_entrada?: string | null
