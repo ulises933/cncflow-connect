@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Eye, Trash2, ArrowRightLeft, X, Package, AlertTriangle, ShoppingCart, CheckCircle } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCreateCotizacion, useUpdateCotizacion, useDeleteCotizacion, useCotizacion, useCreateCotizacionItem, useDeleteCotizacionItem, useClientes, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCreateCotizacion, useUpdateCotizacion, useDeleteCotizacion, useCotizacion, useCreateCotizacionItem, useDeleteCotizacionItem, useClientes, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useCreateCuentaPorCobrar } from "@/hooks/useSupabaseData";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
