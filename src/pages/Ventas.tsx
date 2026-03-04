@@ -142,7 +142,7 @@ const Ventas = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      {["Folio", "Cliente", "Descripción", "Estado", "Total", "Fecha", "Acciones"].map(h => (
+                      {["Folio", "Cliente", "Descripción", "Estado", "Entrega", "Total", "Fecha", "Acciones"].map(h => (
                         <th key={h} className="text-left py-3 px-4 text-muted-foreground font-medium">{h}</th>
                       ))}
                     </tr>
@@ -157,6 +157,11 @@ const Ventas = () => {
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status]}`}>
                             {statusLabels[v.status]}
                           </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {(v as any).entregado
+                            ? <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/20 text-success">✓</span>
+                            : <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">—</span>}
                         </td>
                         <td className="py-3 px-4 font-mono text-foreground">${Number(v.total).toLocaleString()}</td>
                         <td className="py-3 px-4 text-muted-foreground">{v.fecha}</td>
