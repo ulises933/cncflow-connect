@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Eye, Trash2, PackageCheck, Package, TruckIcon } from "lucide-react";
+import { Plus, Eye, Trash2, PackageCheck, Package, TruckIcon, Receipt } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useOrdenesCompra, useOrdenCompra, useCreateOrdenCompra, useUpdateOrdenCompra, useDeleteOrdenCompra, useCreateOrdenCompraItem, useProveedores, useCreateProveedor, useRecibirOrdenCompra, useRecibirParcialOC } from "@/hooks/useSupabaseData";
+import { useOrdenesCompra, useOrdenCompra, useCreateOrdenCompra, useUpdateOrdenCompra, useDeleteOrdenCompra, useCreateOrdenCompraItem, useProveedores, useCreateProveedor, useRecibirOrdenCompra, useRecibirParcialOC, useCuentasPorPagar, useCreateCuentaPorPagar } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
