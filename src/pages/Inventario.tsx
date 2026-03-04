@@ -378,8 +378,9 @@ const Inventario = () => {
           {bomProducto && (
             <Tabs value={detailTab} onValueChange={setDetailTab}>
               <TabsList>
-                <TabsTrigger value="bom"><List className="h-3 w-3 mr-1" />Lista de Materiales (BOM)</TabsTrigger>
-                <TabsTrigger value="procesos"><Settings2 className="h-3 w-3 mr-1" />Ruta de Procesos</TabsTrigger>
+                {bomProducto.es_fabricable && <TabsTrigger value="bom"><List className="h-3 w-3 mr-1" />Lista de Materiales (BOM)</TabsTrigger>}
+                {bomProducto.es_fabricable && <TabsTrigger value="procesos"><Settings2 className="h-3 w-3 mr-1" />Ruta de Procesos</TabsTrigger>}
+                <TabsTrigger value="documentos"><FileText className="h-3 w-3 mr-1" />Documentos Técnicos</TabsTrigger>
               </TabsList>
 
               {/* BOM TAB */}
