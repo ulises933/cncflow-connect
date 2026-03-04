@@ -425,6 +425,30 @@ const Calidad = () => {
                 </div>
               )}
 
+              {/* Technical docs from inventory */}
+              {(() => {
+                const orden = ordenes?.find(o => o.id === detail.orden_id);
+                const invItem = orden?.producto ? inventarioItems?.find(i => i.nombre === orden.producto || i.codigo === orden.producto) : null;
+                const docs = (invItem as any)?.documentos_tecnicos as string[] | null;
+                if (!docs?.length) return null;
+                return (
+                  <div>
+                    <h3 className="font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" />Documentos Técnicos del Producto</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {docs.map((url: string, i: number) => {
+                        const fileName = decodeURIComponent(url.split('/').pop() || `Doc ${i + 1}`).replace(/^\d+_/, '');
+                        return (
+                          <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-secondary/50 transition-colors">
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                            <span className="text-sm text-primary truncate">{fileName}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Files */}
               <div>
                 <h3 className="font-semibold mb-2">Archivos / Metrología</h3>

@@ -530,6 +530,86 @@ const Inventario = () => {
                   </div>
                 )}
               </TabsContent>
+
+              {/* DOCUMENTOS TAB */}
+              <TabsContent value="documentos" className="space-y-4 mt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Documentación técnica de <strong>{bomProducto.nombre}</strong>: planos, especificaciones, certificados, etc.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Formatos soportados: PDF, DOCX, imágenes (JPG, PNG)</p>
+                  </div>
+                </div>
+
+                {/* Existing docs */}
+                {((bomProducto as any).documentos_tecnicos?.length > 0) ? (
+                  <div className="space-y-2">
+                    {(bomProducto as any).documentos_tecnicos.map((url: string, idx: number) => {
+                      const fileName = decodeURIComponent(url.split('/').pop() || `Archivo ${idx + 1}`).replace(/^\d+_/, '');
+                      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                      return (
+                        <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/30">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="h-5 w-5 text-primary shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">{fileName}</p>
+                              <p className="text-xs text-muted-foreground">{isImage ? "Imagen" : "Documento"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <a href={url} target="_blank" rel="noopener noreferrer">
+                              <Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-4 w-4" /></Button>
+                            </a>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
+                              const currentDocs = (bomProducto as any).documentos_tecnicos || [];
+                              const newDocs = currentDocs.filter((_: string, i: number) => i !== idx);
+                              await updateMut.mutateAsync({ id: bomProducto.id, documentos_tecnicos: newDocs } as any);
+                              toast.success("Archivo eliminado");
+                            }}>
+                              <X className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center border-2 border-dashed border-border rounded-lg">
+                    <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-muted-foreground text-sm">Sin documentos técnicos.</p>
+                    <p className="text-xs text-muted-foreground">Sube planos, especificaciones o certificados.</p>
+                  </div>
+                )}
+
+                {/* Upload */}
+                <div className="p-4 rounded-lg bg-secondary/50">
+                  <Label htmlFor="doc-upload" className="cursor-pointer">
+                    <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors">
+                      <Upload className="h-5 w-5" />
+                      <span className="text-sm font-medium">Subir documentos técnicos (PDF, DOCX, imágenes)</span>
+                    </div>
+                  </Label>
+                  <input id="doc-upload" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp" className="hidden" onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files?.length || !bomProductoId) return;
+                    const uploaded: string[] = [];
+                    for (const file of Array.from(files)) {
+                      const path = `inventario/${bomProductoId}/${Date.now()}_${file.name}`;
+                      const { error } = await supabase.storage.from("quality-files").upload(path, file);
+                      if (error) { toast.error(`Error subiendo ${file.name}`); continue; }
+                      const { data: { publicUrl } } = supabase.storage.from("quality-files").getPublicUrl(path);
+                      uploaded.push(publicUrl);
+                    }
+                    if (uploaded.length) {
+                      const currentDocs = (bomProducto as any).documentos_tecnicos || [];
+                      await updateMut.mutateAsync({ id: bomProductoId, documentos_tecnicos: [...currentDocs, ...uploaded] } as any);
+                      toast.success(`${uploaded.length} documento(s) subido(s)`);
+                    }
+                    e.target.value = '';
+                  }} />
+                </div>
+              </TabsContent>
             </Tabs>
           )}
         </DialogContent>
