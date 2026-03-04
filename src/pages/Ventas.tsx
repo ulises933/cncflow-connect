@@ -29,6 +29,10 @@ const Ventas = () => {
   const generarOCDirectaMut = useGenerarOCDirecta();
   const { data: proveedores } = useProveedores();
   const updateCotMut = useUpdateCotizacion();
+  const { data: cuentasPorCobrar } = useCuentasPorCobrar();
+  const createCxCMut = useCreateCuentaPorCobrar();
+  const createCobroMut = useCreateCobro();
+  const updateCxCMut = useUpdateCuentaPorCobrar();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const { data: detail } = useCotizacion(detailId);
@@ -38,6 +42,54 @@ const Ventas = () => {
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
   const [stockResults, setStockResults] = useState<any[]>([]);
   const [selectedProveedor, setSelectedProveedor] = useState<string>("");
+
+  // Cobro dialog
+  const [cobroDialogOpen, setCobroDialogOpen] = useState(false);
+  const [cobroMonto, setCobroMonto] = useState("");
+  const [cobroMetodo, setCobroMetodo] = useState("transferencia");
+  const [cobroReferencia, setCobroReferencia] = useState("");
+
+  // Find CxC for current detail
+  const cxcForDetail = detail ? cuentasPorCobrar?.find(c => c.cotizacion_id === detail.id) : null;
+
+  const handleCrearCxC = async () => {
+    if (!detail) return;
+    if (cxcForDetail) { toast.info("Ya existe una cuenta por cobrar para esta venta"); return; }
+    const condiciones = detail.condiciones_pago || "30 días";
+    const diasMatch = condiciones.match(/(\d+)/);
+    const dias = diasMatch ? parseInt(diasMatch[1]) : 30;
+    const venc = new Date();
+    venc.setDate(venc.getDate() + dias);
+    await createCxCMut.mutateAsync({
+      cotizacion_id: detail.id,
+      cliente_id: detail.cliente_id || undefined,
+      monto: Number(detail.total),
+      fecha_vencimiento: venc.toISOString().split("T")[0],
+    });
+  };
+
+  const handleGenerarCobro = async () => {
+    if (!cxcForDetail || !cobroMonto) return;
+    const monto = Number(cobroMonto);
+    if (monto <= 0 || monto > Number(cxcForDetail.saldo)) {
+      toast.error("Monto inválido"); return;
+    }
+    await createCobroMut.mutateAsync({
+      cuenta_por_cobrar_id: cxcForDetail.id,
+      monto,
+      metodo_pago: cobroMetodo,
+      referencia: cobroReferencia || undefined,
+    });
+    const newSaldo = Number(cxcForDetail.saldo) - monto;
+    await updateCxCMut.mutateAsync({
+      id: cxcForDetail.id,
+      saldo: newSaldo,
+      status: newSaldo <= 0 ? "cobrada" : "parcial",
+    });
+    setCobroDialogOpen(false);
+    setCobroMonto("");
+    setCobroReferencia("");
+  };
 
   // Only show ventas (confirmed) and convertidas
   const ventas = allCotizaciones?.filter(c => c.status === "venta" || c.status === "convertida") || [];
