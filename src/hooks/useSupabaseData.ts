@@ -1356,6 +1356,67 @@ export const useCalcBomCost = () => {
   });
 };
 
+// ============ CUENTAS POR COBRAR ============
+export const useCuentasPorCobrar = () =>
+  useQuery({
+    queryKey: ["cuentas_por_cobrar"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("cuentas_por_cobrar").select("*, clientes(nombre), cotizaciones(folio)").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+export const useCreateCuentaPorCobrar = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: { cotizacion_id?: string; cliente_id?: string; monto: number; saldo?: number; fecha_vencimiento?: string; notas?: string }) => {
+      const { data, error } = await supabase.from("cuentas_por_cobrar").insert({ ...values, saldo: values.saldo ?? values.monto }).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cuentas_por_cobrar"] }); toast.success("Cuenta por cobrar creada"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+export const useUpdateCuentaPorCobrar = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...values }: { id: string; [key: string]: any }) => {
+      const { error } = await supabase.from("cuentas_por_cobrar").update(values).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cuentas_por_cobrar"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+// ============ COBROS ============
+export const useCobros = (cuentaId: string | null) =>
+  useQuery({
+    queryKey: ["cobros", cuentaId],
+    enabled: !!cuentaId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("cobros").select("*").eq("cuenta_por_cobrar_id", cuentaId!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+export const useCreateCobro = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: { cuenta_por_cobrar_id: string; monto: number; metodo_pago?: string; referencia?: string; notas?: string }) => {
+      const { data, error } = await supabase.from("cobros").insert(values).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => { qc.invalidateQueries({ queryKey: ["cobros", vars.cuenta_por_cobrar_id] }); qc.invalidateQueries({ queryKey: ["cuentas_por_cobrar"] }); toast.success("Cobro registrado"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
 // ============ ESPECIFICACIONES GD&T ============
 export const useEspecificacionesGDT = (ordenId?: string | null) =>
   useQuery({

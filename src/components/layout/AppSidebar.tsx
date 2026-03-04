@@ -16,6 +16,7 @@ const navGroups = [
       { to: "/clientes", icon: Users, label: "Clientes" },
       { to: "/cotizaciones", icon: FileText, label: "Cotizaciones" },
       { to: "/ventas", icon: HandCoins, label: "Ventas" },
+      { to: "/cuentas-por-cobrar", icon: FileBarChart, label: "Cuentas x Cobrar" },
     ],
   },
   {

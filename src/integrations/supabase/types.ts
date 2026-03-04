@@ -264,6 +264,50 @@ export type Database = {
         }
         Relationships: []
       }
+      cobros: {
+        Row: {
+          created_at: string
+          cuenta_por_cobrar_id: string
+          fecha: string
+          folio: string
+          id: string
+          metodo_pago: string
+          monto: number
+          notas: string | null
+          referencia: string | null
+        }
+        Insert: {
+          created_at?: string
+          cuenta_por_cobrar_id: string
+          fecha?: string
+          folio?: string
+          id?: string
+          metodo_pago?: string
+          monto?: number
+          notas?: string | null
+          referencia?: string | null
+        }
+        Update: {
+          created_at?: string
+          cuenta_por_cobrar_id?: string
+          fecha?: string
+          folio?: string
+          id?: string
+          metodo_pago?: string
+          monto?: number
+          notas?: string | null
+          referencia?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cobros_cuenta_por_cobrar_id_fkey"
+            columns: ["cuenta_por_cobrar_id"]
+            isOneToOne: false
+            referencedRelation: "cuentas_por_cobrar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cotizacion_items: {
         Row: {
           acabado_superficial: string | null
@@ -366,6 +410,7 @@ export type Database = {
           condiciones_pago: string | null
           contacto_cliente: string | null
           created_at: string
+          entregado: boolean | null
           fecha: string
           folio: string
           id: string
@@ -391,6 +436,7 @@ export type Database = {
           condiciones_pago?: string | null
           contacto_cliente?: string | null
           created_at?: string
+          entregado?: boolean | null
           fecha?: string
           folio?: string
           id?: string
@@ -416,6 +462,7 @@ export type Database = {
           condiciones_pago?: string | null
           contacto_cliente?: string | null
           created_at?: string
+          entregado?: boolean | null
           fecha?: string
           folio?: string
           id?: string
@@ -442,6 +489,66 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cuentas_por_cobrar: {
+        Row: {
+          cliente_id: string | null
+          cotizacion_id: string | null
+          created_at: string
+          fecha_emision: string
+          fecha_vencimiento: string | null
+          folio: string
+          id: string
+          monto: number
+          notas: string | null
+          saldo: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cliente_id?: string | null
+          cotizacion_id?: string | null
+          created_at?: string
+          fecha_emision?: string
+          fecha_vencimiento?: string | null
+          folio?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          saldo?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string | null
+          cotizacion_id?: string | null
+          created_at?: string
+          fecha_emision?: string
+          fecha_vencimiento?: string | null
+          folio?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          saldo?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cuentas_por_cobrar_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cuentas_por_cobrar_cotizacion_id_fkey"
+            columns: ["cotizacion_id"]
+            isOneToOne: false
+            referencedRelation: "cotizaciones"
             referencedColumns: ["id"]
           },
         ]

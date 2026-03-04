@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Eye, Trash2, ArrowRightLeft, X, Package, AlertTriangle, ShoppingCart, CheckCircle } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCreateCotizacion, useUpdateCotizacion, useDeleteCotizacion, useCotizacion, useCreateCotizacionItem, useDeleteCotizacionItem, useClientes, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCreateCotizacion, useUpdateCotizacion, useDeleteCotizacion, useCotizacion, useCreateCotizacionItem, useDeleteCotizacionItem, useClientes, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useCreateCuentaPorCobrar } from "@/hooks/useSupabaseData";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -135,9 +135,26 @@ const Cotizaciones = () => {
     setTimeout(() => recalcTotals(detailId, detail?.margen_porcentaje || 30, updateMut), 300);
   };
 
+  const createCxC = useCreateCuentaPorCobrar();
+
   const handleConfirmarVenta = async (id: string) => {
+    // Get cotización data for CxC creation
+    const { data: cotData } = await supabase.from("cotizaciones").select("*, clientes(nombre)").eq("id", id).single();
     await updateMut.mutateAsync({ id, status: "venta" });
-    toast.success("Cotización confirmada como Orden de Venta");
+    // Auto-create cuenta por cobrar
+    if (cotData) {
+      const diasPago = cotData.condiciones_pago?.match(/(\d+)/)?.[1];
+      const fechaVenc = new Date();
+      fechaVenc.setDate(fechaVenc.getDate() + (diasPago ? parseInt(diasPago) : 30));
+      await createCxC.mutateAsync({
+        cotizacion_id: id,
+        cliente_id: cotData.cliente_id || undefined,
+        monto: Number(cotData.total),
+        fecha_vencimiento: fechaVenc.toISOString().split("T")[0],
+        notas: `Generada desde cotización ${cotData.folio}`,
+      });
+    }
+    toast.success("Cotización confirmada como Orden de Venta + Cuenta por Cobrar generada");
     setDetailId(null);
   };
 

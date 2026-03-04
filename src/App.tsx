@@ -18,6 +18,7 @@ import Mantenimiento from "./pages/Mantenimiento";
 import Inventario from "./pages/Inventario";
 import Gastos from "./pages/Gastos";
 import Metrologia from "./pages/Metrologia";
+import CuentasPorCobrar from "./pages/CuentasPorCobrar";
 import NotFound from "./pages/NotFound";
 
 // RH pages
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="inventario" element={<Inventario />} />
             <Route path="gastos" element={<Gastos />} />
             <Route path="metrologia" element={<Metrologia />} />
+            <Route path="cuentas-por-cobrar" element={<CuentasPorCobrar />} />
             {/* RH routes */}
             <Route path="rrhh/empleados" element={<RHEmpleados />} />
             <Route path="rrhh/incapacidades" element={<RHIncapacidades />} />

@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package } from "lucide-react";
+import { Eye, ArrowRightLeft, AlertTriangle, ShoppingCart, Package, PackageCheck } from "lucide-react";
 import PrintDocument from "@/components/PrintDocument";
-import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores } from "@/hooks/useSupabaseData";
+import { useCotizaciones, useCotizacion, useConvertirCotizacion, useInventario, useVerificarStock, useGenerarOCFromFaltantes, useGenerarOCDirecta, useProveedores, useUpdateCotizacion } from "@/hooks/useSupabaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -26,6 +26,7 @@ const Ventas = () => {
   const generarOCMut = useGenerarOCFromFaltantes();
   const generarOCDirectaMut = useGenerarOCDirecta();
   const { data: proveedores } = useProveedores();
+  const updateCotMut = useUpdateCotizacion();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const { data: detail } = useCotizacion(detailId);
@@ -141,7 +142,7 @@ const Ventas = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      {["Folio", "Cliente", "Descripción", "Estado", "Total", "Fecha", "Acciones"].map(h => (
+                      {["Folio", "Cliente", "Descripción", "Estado", "Entrega", "Total", "Fecha", "Acciones"].map(h => (
                         <th key={h} className="text-left py-3 px-4 text-muted-foreground font-medium">{h}</th>
                       ))}
                     </tr>
@@ -156,6 +157,11 @@ const Ventas = () => {
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status]}`}>
                             {statusLabels[v.status]}
                           </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {(v as any).entregado
+                            ? <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/20 text-success">✓</span>
+                            : <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">—</span>}
                         </td>
                         <td className="py-3 px-4 font-mono text-foreground">${Number(v.total).toLocaleString()}</td>
                         <td className="py-3 px-4 text-muted-foreground">{v.fecha}</td>
@@ -193,12 +199,24 @@ const Ventas = () => {
                 </div>
                 <div><p className="text-muted-foreground">Subtotal</p><p className="font-mono font-semibold">${Number(detail.subtotal).toLocaleString()}</p></div>
                 <div><p className="text-muted-foreground">Total (c/IVA)</p><p className="font-mono font-semibold text-primary">${Number(detail.total).toLocaleString()}</p></div>
+                <div><p className="text-muted-foreground">Entrega</p>
+                  {(detail as any).entregado ? (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/20 text-success">✓ Entregado</span>
+                  ) : (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-700">Pendiente</span>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-2 flex-wrap">
                 {detail.status === "venta" && (
                   <Button onClick={() => handleConvert(detail.id)} className="bg-success hover:bg-success/90 text-success-foreground" disabled={convertMut.isPending}>
                     <ArrowRightLeft className="h-4 w-4 mr-2" />{convertMut.isPending ? "Convirtiendo..." : "Convertir a OP + BOM"}
+                  </Button>
+                )}
+                {!(detail as any).entregado && (
+                  <Button variant="outline" onClick={async () => { await updateCotMut.mutateAsync({ id: detail.id, entregado: true }); toast.success("Marcado como entregado"); }}>
+                    <PackageCheck className="h-4 w-4 mr-2" />Marcar Entregado
                   </Button>
                 )}
                 <Button variant="outline" onClick={handleVerificarStock} disabled={verificarStockMut.isPending}>
