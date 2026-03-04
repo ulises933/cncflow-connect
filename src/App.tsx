@@ -21,6 +21,7 @@ import Metrologia from "./pages/Metrologia";
 import CuentasPorCobrar from "./pages/CuentasPorCobrar";
 import CuentasPorPagar from "./pages/CuentasPorPagar";
 import Proveedores from "./pages/Proveedores";
+import Entregas from "./pages/Entregas";
 import NotFound from "./pages/NotFound";
 
 // RH pages
