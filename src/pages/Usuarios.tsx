@@ -165,7 +165,6 @@ const Usuarios = () => {
     }
     setCreatingUser(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const response = await supabase.functions.invoke("create-user", {
         body: { email: newUserEmail, password: newUserPassword, nombre: newUserNombre, role: newUserRole },
       });
