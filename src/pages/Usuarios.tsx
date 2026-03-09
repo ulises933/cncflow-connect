@@ -158,7 +158,34 @@ const Usuarios = () => {
     }
   };
 
-  const handleAddRole = async () => {
+  const handleCreateUser = async () => {
+    if (!newUserEmail || !newUserPassword || !newUserNombre) {
+      toast({ title: "Error", description: "Todos los campos son requeridos", variant: "destructive" });
+      return;
+    }
+    setCreatingUser(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await supabase.functions.invoke("create-user", {
+        body: { email: newUserEmail, password: newUserPassword, nombre: newUserNombre, role: newUserRole },
+      });
+      if (response.error || response.data?.error) {
+        toast({ title: "Error", description: response.data?.error || response.error?.message, variant: "destructive" });
+      } else {
+        toast({ title: "Usuario creado", description: `${newUserNombre} (${newUserEmail}) creado exitosamente` });
+        setNewUserEmail("");
+        setNewUserPassword("");
+        setNewUserNombre("");
+        setNewUserRole("usuario");
+        setAddUserOpen(false);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setCreatingUser(false);
+  };
+
     if (!newRoleName.trim()) return;
     const slug = newRoleName.trim().toLowerCase().replace(/\s+/g, "_");
     
