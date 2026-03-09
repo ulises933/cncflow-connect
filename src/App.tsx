@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Cotizaciones from "./pages/Cotizaciones";
@@ -22,6 +23,8 @@ import CuentasPorCobrar from "./pages/CuentasPorCobrar";
 import CuentasPorPagar from "./pages/CuentasPorPagar";
 import Proveedores from "./pages/Proveedores";
 import Entregas from "./pages/Entregas";
+import Login from "./pages/Login";
+import Usuarios from "./pages/Usuarios";
 import NotFound from "./pages/NotFound";
 
 // RH pages
@@ -44,40 +47,44 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="cotizaciones" element={<Cotizaciones />} />
-            <Route path="ventas" element={<Ventas />} />
-            <Route path="clientes" element={<Clientes />} />
-            <Route path="bom" element={<BOM />} />
-            <Route path="compras" element={<Compras />} />
-            <Route path="produccion" element={<Produccion />} />
-            <Route path="maquinas" element={<Maquinas />} />
-            <Route path="calidad" element={<Calidad />} />
-            <Route path="mantenimiento" element={<Mantenimiento />} />
-            <Route path="inventario" element={<Inventario />} />
-            <Route path="gastos" element={<Gastos />} />
-            <Route path="metrologia" element={<Metrologia />} />
-            <Route path="cuentas-por-cobrar" element={<CuentasPorCobrar />} />
-            <Route path="cuentas-por-pagar" element={<CuentasPorPagar />} />
-            <Route path="proveedores" element={<Proveedores />} />
-            <Route path="entregas" element={<Entregas />} />
-            {/* RH routes */}
-            <Route path="rrhh/empleados" element={<RHEmpleados />} />
-            <Route path="rrhh/incapacidades" element={<RHIncapacidades />} />
-            <Route path="rrhh/tiempo-extra" element={<RHTiempoExtra />} />
-            <Route path="rrhh/faltas" element={<RHFaltas />} />
-            <Route path="rrhh/vacaciones" element={<RHVacaciones />} />
-            <Route path="rrhh/descuentos" element={<RHDescuentos />} />
-            <Route path="rrhh/prestamos" element={<RHPrestamos />} />
-            <Route path="rrhh/pagos" element={<RHPagos />} />
-            <Route path="rrhh/estado-cuenta" element={<RHEstadoCuenta />} />
-            <Route path="rrhh/catalogos" element={<RHCatalogos />} />
-          </Route>
-          <Route path="/operador" element={<OperadorView />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="cotizaciones" element={<Cotizaciones />} />
+              <Route path="ventas" element={<Ventas />} />
+              <Route path="clientes" element={<Clientes />} />
+              <Route path="bom" element={<BOM />} />
+              <Route path="compras" element={<Compras />} />
+              <Route path="produccion" element={<Produccion />} />
+              <Route path="maquinas" element={<Maquinas />} />
+              <Route path="calidad" element={<Calidad />} />
+              <Route path="mantenimiento" element={<Mantenimiento />} />
+              <Route path="inventario" element={<Inventario />} />
+              <Route path="gastos" element={<Gastos />} />
+              <Route path="metrologia" element={<Metrologia />} />
+              <Route path="cuentas-por-cobrar" element={<CuentasPorCobrar />} />
+              <Route path="cuentas-por-pagar" element={<CuentasPorPagar />} />
+              <Route path="proveedores" element={<Proveedores />} />
+              <Route path="entregas" element={<Entregas />} />
+              <Route path="usuarios" element={<Usuarios />} />
+              {/* RH routes */}
+              <Route path="rrhh/empleados" element={<RHEmpleados />} />
+              <Route path="rrhh/incapacidades" element={<RHIncapacidades />} />
+              <Route path="rrhh/tiempo-extra" element={<RHTiempoExtra />} />
+              <Route path="rrhh/faltas" element={<RHFaltas />} />
+              <Route path="rrhh/vacaciones" element={<RHVacaciones />} />
+              <Route path="rrhh/descuentos" element={<RHDescuentos />} />
+              <Route path="rrhh/prestamos" element={<RHPrestamos />} />
+              <Route path="rrhh/pagos" element={<RHPagos />} />
+              <Route path="rrhh/estado-cuenta" element={<RHEstadoCuenta />} />
+              <Route path="rrhh/catalogos" element={<RHCatalogos />} />
+            </Route>
+            <Route path="/operador" element={<OperadorView />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
