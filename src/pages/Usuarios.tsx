@@ -83,6 +83,12 @@ const Usuarios = () => {
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDesc, setNewRoleDesc] = useState("");
   const [addRoleOpen, setAddRoleOpen] = useState(false);
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserNombre, setNewUserNombre] = useState("");
+  const [newUserRole, setNewUserRole] = useState("usuario");
+  const [creatingUser, setCreatingUser] = useState(false);
 
   const fetchRoles = async () => {
     const { data } = await supabase.from("roles").select("*").order("created_at");
