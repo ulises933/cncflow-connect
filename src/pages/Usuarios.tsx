@@ -129,7 +129,7 @@ const Usuarios = () => {
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     await supabase.from("user_roles").delete().eq("user_id", userId);
-    await supabase.from("user_roles").insert({ user_id: userId, role: newRole as any });
+    await supabase.from("user_roles").insert({ user_id: userId, role: newRole } as any);
     await supabase.from("profiles").update({ rol: newRole }).eq("id", userId);
     toast({ title: "Rol actualizado" });
     fetchUsers();
