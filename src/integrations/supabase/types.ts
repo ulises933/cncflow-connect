@@ -1369,21 +1369,21 @@ export type Database = {
           created_at: string
           id: string
           module_key: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
         }
         Insert: {
           can_access?: boolean
           created_at?: string
           id?: string
           module_key: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
         }
         Update: {
           can_access?: boolean
           created_at?: string
           id?: string
           module_key?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: string
         }
         Relationships: []
       }
@@ -2476,17 +2476,17 @@ export type Database = {
       user_roles: {
         Row: {
           id: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           user_id: string
         }
         Insert: {
           id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           user_id: string
         }
         Update: {
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: string
           user_id?: string
         }
         Relationships: []
@@ -2502,13 +2502,7 @@ export type Database = {
           module_key: string
         }[]
       }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "usuario" | "operador" | "supervisor"
