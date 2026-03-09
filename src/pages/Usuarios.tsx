@@ -298,7 +298,49 @@ const Usuarios = () => {
         <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle>Gestión de Usuarios</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Gestión de Usuarios</CardTitle>
+                <Dialog open={addUserOpen} onOpenChange={setAddUserOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nuevo Usuario</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Crear Usuario</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-2">
+                      <div className="space-y-2">
+                        <Label>Nombre completo</Label>
+                        <Input value={newUserNombre} onChange={e => setNewUserNombre(e.target.value)} placeholder="Juan Pérez" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Correo electrónico</Label>
+                        <Input type="email" value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)} placeholder="usuario@empresa.com" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Contraseña</Label>
+                        <Input type="password" value={newUserPassword} onChange={e => setNewUserPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Rol</Label>
+                        <Select value={newUserRole} onValueChange={setNewUserRole}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allRoleNames.map(r => (
+                              <SelectItem key={r} value={r}>{ROLE_LABELS[r] || r}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={handleCreateUser} className="w-full" disabled={creatingUser}>
+                        {creatingUser ? "Creando..." : "Crear Usuario"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
