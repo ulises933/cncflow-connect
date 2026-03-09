@@ -1363,6 +1363,30 @@ export type Database = {
         }
         Relationships: []
       }
+      module_permissions: {
+        Row: {
+          can_access: boolean
+          created_at: string
+          id: string
+          module_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          can_access?: boolean
+          created_at?: string
+          id?: string
+          module_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          can_access?: boolean
+          created_at?: string
+          id?: string
+          module_key?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       ordenes_compra: {
         Row: {
           bom_id: string | null
@@ -1774,6 +1798,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profiles: {
+        Row: {
+          activo: boolean
+          created_at: string
+          email: string | null
+          id: string
+          nombre: string
+          rol: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          email?: string | null
+          id: string
+          nombre?: string
+          rol?: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre?: string
+          rol?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       proveedores: {
         Row: {
@@ -2398,15 +2452,45 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_modules: {
+        Args: { _user_id: string }
+        Returns: {
+          module_key: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "usuario" | "operador" | "supervisor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2533,6 +2617,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "usuario", "operador", "supervisor"],
+    },
   },
 } as const
