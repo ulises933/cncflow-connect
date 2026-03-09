@@ -4,22 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Shield, Settings, UserCog } from "lucide-react";
-
-const ROLES = ["admin", "usuario", "operador", "supervisor"] as const;
-type AppRole = typeof ROLES[number];
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: "Administrador",
-  usuario: "Usuario",
-  operador: "Operador",
-  supervisor: "Supervisor",
-};
+import { Users, Shield, Settings, UserCog, Plus, Trash2, Tag } from "lucide-react";
 
 const MODULE_GROUPS = [
   {
@@ -73,13 +66,28 @@ interface UserProfile {
   roles: string[];
 }
 
+interface RoleCatalog {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+}
+
 const Usuarios = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [permissions, setPermissions] = useState<Record<string, Record<string, boolean>>>({});
-  const [selectedRole, setSelectedRole] = useState<AppRole>("usuario");
+  const [selectedRole, setSelectedRole] = useState<string>("usuario");
   const [loading, setLoading] = useState(true);
+  const [rolesCatalog, setRolesCatalog] = useState<RoleCatalog[]>([]);
+  const [newRoleName, setNewRoleName] = useState("");
+  const [newRoleDesc, setNewRoleDesc] = useState("");
+  const [addRoleOpen, setAddRoleOpen] = useState(false);
+
+  const fetchRoles = async () => {
+    const { data } = await supabase.from("roles").select("*").order("created_at");
+    if (data) setRolesCatalog(data as any);
+  };
 
   const fetchUsers = async () => {
     const { data: profiles } = await supabase.from("profiles").select("*");
@@ -110,14 +118,12 @@ const Usuarios = () => {
   useEffect(() => {
     fetchUsers();
     fetchPermissions();
+    fetchRoles();
   }, []);
 
-  const handleRoleChange = async (userId: string, newRole: AppRole) => {
-    // Remove existing roles
+  const handleRoleChange = async (userId: string, newRole: string) => {
     await supabase.from("user_roles").delete().eq("user_id", userId);
-    // Insert new role
-    await supabase.from("user_roles").insert({ user_id: userId, role: newRole });
-    // Update profile
+    await supabase.from("user_roles").insert({ user_id: userId, role: newRole as any });
     await supabase.from("profiles").update({ rol: newRole }).eq("id", userId);
     toast({ title: "Rol actualizado" });
     fetchUsers();
@@ -129,15 +135,12 @@ const Usuarios = () => {
     fetchUsers();
   };
 
-  const handlePermissionToggle = async (role: AppRole, moduleKey: string, currentValue: boolean) => {
+  const handlePermissionToggle = async (role: string, moduleKey: string, currentValue: boolean) => {
     const newValue = !currentValue;
-    
-    // Upsert permission
     const { error } = await supabase.from("module_permissions").upsert(
-      { role, module_key: moduleKey, can_access: newValue },
+      { role: role as any, module_key: moduleKey, can_access: newValue },
       { onConflict: "role,module_key" }
     );
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
@@ -148,6 +151,54 @@ const Usuarios = () => {
       toast({ title: "Permiso actualizado" });
     }
   };
+
+  const handleAddRole = async () => {
+    if (!newRoleName.trim()) return;
+    const slug = newRoleName.trim().toLowerCase().replace(/\s+/g, "_");
+    
+    // Add to roles catalog
+    const { error } = await supabase.from("roles").insert({ nombre: slug, descripcion: newRoleDesc || null } as any);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    // Add to enum (needed for user_roles & module_permissions)
+    // Since we can't alter enum from client, we use the catalog for display
+    // The enum values admin/usuario/operador/supervisor still work, new roles use catalog only
+    
+    toast({ title: "Rol creado", description: `Rol "${slug}" agregado exitosamente` });
+    setNewRoleName("");
+    setNewRoleDesc("");
+    setAddRoleOpen(false);
+    fetchRoles();
+  };
+
+  const handleDeleteRole = async (role: RoleCatalog) => {
+    if (["admin", "usuario", "operador", "supervisor"].includes(role.nombre)) {
+      toast({ title: "No permitido", description: "No se pueden eliminar roles del sistema", variant: "destructive" });
+      return;
+    }
+    await supabase.from("roles").delete().eq("id", role.id);
+    toast({ title: "Rol eliminado" });
+    fetchRoles();
+  };
+
+  const roleLabels = rolesCatalog.reduce((acc, r) => {
+    acc[r.nombre] = r.nombre.charAt(0).toUpperCase() + r.nombre.slice(1).replace(/_/g, " ");
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Fallback labels for enum roles
+  const ROLE_LABELS: Record<string, string> = {
+    admin: "Administrador",
+    usuario: "Usuario",
+    operador: "Operador",
+    supervisor: "Supervisor",
+    ...roleLabels,
+  };
+
+  const allRoleNames = rolesCatalog.map(r => r.nombre);
 
   if (!isAdmin) {
     return (
@@ -194,10 +245,10 @@ const Usuarios = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <Settings className="h-8 w-8 text-primary" />
+              <Tag className="h-8 w-8 text-primary" />
               <div>
-                <p className="text-2xl font-bold text-foreground">{users.filter(u => u.activo).length}</p>
-                <p className="text-sm text-muted-foreground">Usuarios Activos</p>
+                <p className="text-2xl font-bold text-foreground">{rolesCatalog.length}</p>
+                <p className="text-sm text-muted-foreground">Roles Definidos</p>
               </div>
             </div>
           </CardContent>
@@ -207,6 +258,7 @@ const Usuarios = () => {
       <Tabs defaultValue="users">
         <TabsList>
           <TabsTrigger value="users">Usuarios</TabsTrigger>
+          <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="permissions">Permisos por Rol</TabsTrigger>
         </TabsList>
 
@@ -249,14 +301,14 @@ const Usuarios = () => {
                         <div className="flex items-center gap-2">
                           <Select
                             defaultValue={user.roles[0] || "usuario"}
-                            onValueChange={(v) => handleRoleChange(user.id, v as AppRole)}
+                            onValueChange={(v) => handleRoleChange(user.id, v)}
                           >
                             <SelectTrigger className="w-[140px]">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {ROLES.map(r => (
-                                <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                              {allRoleNames.map(r => (
+                                <SelectItem key={r} value={r}>{ROLE_LABELS[r] || r}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -274,18 +326,79 @@ const Usuarios = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="roles">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Catálogo de Roles</CardTitle>
+                <Dialog open={addRoleOpen} onOpenChange={setAddRoleOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nuevo Rol</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Agregar Rol</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-2">
+                      <div className="space-y-2">
+                        <Label>Nombre del rol</Label>
+                        <Input value={newRoleName} onChange={e => setNewRoleName(e.target.value)} placeholder="ej: inspector, almacenista" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Descripción</Label>
+                        <Input value={newRoleDesc} onChange={e => setNewRoleDesc(e.target.value)} placeholder="Descripción del rol" />
+                      </div>
+                      <Button onClick={handleAddRole} className="w-full">Crear Rol</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Rol</TableHead>
+                    <TableHead>Descripción</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rolesCatalog.map(role => (
+                    <TableRow key={role.id}>
+                      <TableCell>
+                        <Badge variant={role.nombre === "admin" ? "default" : "secondary"}>
+                          {ROLE_LABELS[role.nombre] || role.nombre}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{role.descripcion || "—"}</TableCell>
+                      <TableCell>
+                        {!["admin", "usuario", "operador", "supervisor"].includes(role.nombre) && (
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteRole(role)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="permissions">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Permisos de Módulos</CardTitle>
-                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as AppRole)}>
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
                   <SelectTrigger className="w-[200px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLES.map(r => (
-                      <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                    {allRoleNames.map(r => (
+                      <SelectItem key={r} value={r}>{ROLE_LABELS[r] || r}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
