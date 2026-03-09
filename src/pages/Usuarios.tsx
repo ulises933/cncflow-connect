@@ -186,6 +186,7 @@ const Usuarios = () => {
     setCreatingUser(false);
   };
 
+  const handleAddRole = async () => {
     if (!newRoleName.trim()) return;
     const slug = newRoleName.trim().toLowerCase().replace(/\s+/g, "_");
     
