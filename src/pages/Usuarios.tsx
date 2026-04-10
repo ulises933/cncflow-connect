@@ -11,8 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Shield, Settings, UserCog, Plus, Trash2, Tag } from "lucide-react";
+import { Users, Shield, Settings, UserCog, Plus, Trash2, Tag, Pencil, Key, Mail } from "lucide-react";
 
 const MODULE_GROUPS = [
   {
@@ -73,7 +74,7 @@ interface RoleCatalog {
 }
 
 const Usuarios = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user: currentUser } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [permissions, setPermissions] = useState<Record<string, Record<string, boolean>>>({});
@@ -89,6 +90,19 @@ const Usuarios = () => {
   const [newUserNombre, setNewUserNombre] = useState("");
   const [newUserRole, setNewUserRole] = useState("usuario");
   const [creatingUser, setCreatingUser] = useState(false);
+
+  // Edit user state
+  const [editUserOpen, setEditUserOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [editNombre, setEditNombre] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [savingUser, setSavingUser] = useState(false);
+
+  // Delete user state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<UserProfile | null>(null);
+  const [deletingInProgress, setDeletingInProgress] = useState(false);
 
   const fetchRoles = async () => {
     const { data } = await supabase.from("roles").select("*").order("created_at");
@@ -185,21 +199,75 @@ const Usuarios = () => {
     setCreatingUser(false);
   };
 
+  const handleOpenEdit = (user: UserProfile) => {
+    setEditingUser(user);
+    setEditNombre(user.nombre);
+    setEditEmail(user.email || "");
+    setEditPassword("");
+    setEditUserOpen(true);
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+    setSavingUser(true);
+    try {
+      const body: any = { action: "update", user_id: editingUser.id };
+      if (editNombre && editNombre !== editingUser.nombre) body.nombre = editNombre;
+      if (editEmail && editEmail !== editingUser.email) body.email = editEmail;
+      if (editPassword) body.password = editPassword;
+
+      if (!body.nombre && !body.email && !body.password) {
+        toast({ title: "Sin cambios", description: "No se detectaron cambios" });
+        setSavingUser(false);
+        return;
+      }
+
+      const response = await supabase.functions.invoke("manage-user", { body });
+      if (response.error || response.data?.error) {
+        toast({ title: "Error", description: response.data?.error || response.error?.message, variant: "destructive" });
+      } else {
+        toast({ title: "Usuario actualizado" });
+        setEditUserOpen(false);
+        setEditingUser(null);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setSavingUser(false);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+    setDeletingInProgress(true);
+    try {
+      const response = await supabase.functions.invoke("manage-user", {
+        body: { action: "delete", user_id: deletingUser.id },
+      });
+      if (response.error || response.data?.error) {
+        toast({ title: "Error", description: response.data?.error || response.error?.message, variant: "destructive" });
+      } else {
+        toast({ title: "Usuario eliminado", description: `${deletingUser.nombre} fue eliminado` });
+        setDeleteConfirmOpen(false);
+        setDeletingUser(null);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setDeletingInProgress(false);
+  };
+
   const handleAddRole = async () => {
     if (!newRoleName.trim()) return;
     const slug = newRoleName.trim().toLowerCase().replace(/\s+/g, "_");
     
-    // Add to roles catalog
     const { error } = await supabase.from("roles").insert({ nombre: slug, descripcion: newRoleDesc || null } as any);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
     }
 
-    // Add to enum (needed for user_roles & module_permissions)
-    // Since we can't alter enum from client, we use the catalog for display
-    // The enum values admin/usuario/operador/supervisor still work, new roles use catalog only
-    
     toast({ title: "Rol creado", description: `Rol "${slug}" agregado exitosamente` });
     setNewRoleName("");
     setNewRoleDesc("");
@@ -222,7 +290,6 @@ const Usuarios = () => {
     return acc;
   }, {} as Record<string, string>);
 
-  // Fallback labels for enum roles
   const ROLE_LABELS: Record<string, string> = {
     admin: "Administrador",
     usuario: "Usuario",
@@ -391,6 +458,18 @@ const Usuarios = () => {
                             checked={user.activo}
                             onCheckedChange={(v) => handleToggleActive(user.id, v)}
                           />
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(user)} title="Editar usuario">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => { setDeletingUser(user); setDeleteConfirmOpen(true); }}
+                            disabled={user.id === currentUser?.id}
+                            title={user.id === currentUser?.id ? "No puedes eliminarte" : "Eliminar usuario"}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -508,6 +587,51 @@ const Usuarios = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit User Dialog */}
+      <Dialog open={editUserOpen} onOpenChange={setEditUserOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Usuario</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Users className="h-4 w-4" /> Nombre</Label>
+              <Input value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="Nombre completo" />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Mail className="h-4 w-4" /> Correo electrónico</Label>
+              <Input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} placeholder="correo@empresa.com" />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Key className="h-4 w-4" /> Nueva contraseña</Label>
+              <Input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)} placeholder="Dejar vacío para no cambiar" />
+              <p className="text-xs text-muted-foreground">Solo llena este campo si deseas cambiar la contraseña.</p>
+            </div>
+            <Button onClick={handleSaveUser} className="w-full" disabled={savingUser}>
+              {savingUser ? "Guardando..." : "Guardar Cambios"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Confirmation */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Estás a punto de eliminar permanentemente a <strong>{deletingUser?.nombre}</strong> ({deletingUser?.email}). Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingInProgress}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} disabled={deletingInProgress} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deletingInProgress ? "Eliminando..." : "Eliminar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
