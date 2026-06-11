@@ -28,7 +28,7 @@ const DashboardLayout = () => {
           <button onClick={() => setSidebarOpen(true)} className="text-foreground">
             <Menu className="h-6 w-6" />
           </button>
-          <span className="ml-3 font-semibold text-foreground">MRISA de C.V.</span>
+          <span className="ml-3 font-semibold text-foreground">ProStaffSE</span>
         </header>
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <Outlet />

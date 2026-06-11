@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import logoMrisa from "@/assets/logo-mrisa.png";
+import logoProStaff from "@/assets/prostaffse-logo.png.asset.json";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -33,10 +33,10 @@ const Login = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <img src={logoMrisa} alt="MRISA" className="h-12 object-contain" />
+            <img src={logoProStaff.url} alt="ProStaffSE" className="h-16 object-contain" />
           </div>
-          <CardTitle className="text-2xl font-bold text-foreground">MRISA de C.V.</CardTitle>
-          <CardDescription>Sistema ERP - Manufactura CNC</CardDescription>
+          <CardTitle className="text-2xl font-bold text-foreground">ProStaffSE</CardTitle>
+          <CardDescription>Servicios Especializados - Sistema ERP</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

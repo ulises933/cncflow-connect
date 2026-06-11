@@ -6,7 +6,7 @@ import {
   UserCog, Clock, CalendarOff, Palmtree, BadgeMinus,
   Banknote, CreditCard, FileBarChart, BookOpen, Truck, Receipt, LogOut, Shield
 } from "lucide-react";
-import logoMrisa from "@/assets/logo-mrisa.png";
+import logoProStaff from "@/assets/prostaffse-logo.png.asset.json";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navGroups = [
@@ -102,10 +102,10 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
       >
         <div className="h-16 border-b border-sidebar-border flex items-center justify-between px-5">
           <div className="flex items-center gap-3">
-            <img src={logoMrisa} alt="MRISA de C.V." className="h-8 object-contain" />
+            <img src={logoProStaff.url} alt="ProStaffSE" className="h-9 object-contain" />
             <div className="flex flex-col leading-none">
-              <span className="font-serif text-lg text-sidebar-foreground tracking-tight">MRISA</span>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-sidebar-foreground/50">de C.V.</span>
+              <span className="font-serif text-lg text-sidebar-foreground tracking-tight">ProStaffSE</span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-sidebar-foreground/50">Servicios Especializados</span>
             </div>
           </div>
           <button onClick={onClose} className="lg:hidden text-sidebar-foreground/60 hover:text-sidebar-foreground">

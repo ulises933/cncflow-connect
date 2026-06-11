@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import logoMrisa from "@/assets/logo-mrisa.png";
+import logoProStaff from "@/assets/prostaffse-logo.png.asset.json";
 
 interface PrintDocumentProps {
   title: string;
@@ -72,7 +72,7 @@ const PrintDocument = ({
       <div class="sig-line">Autorizó / Cliente</div>
     </div>
     <div class="footer">
-      <span>MRISA de C.V. — Documento generado el ${new Date().toLocaleDateString("es-MX")}</span>
+      <span>ProStaffSE — Documento generado el ${new Date().toLocaleDateString("es-MX")}</span>
       <span>${title} ${folio}</span>
     </div>
     </body></html>`);
@@ -88,10 +88,10 @@ const PrintDocument = ({
       <div ref={ref} style={{ position: "absolute", left: "-9999px", top: 0 }}>
         <div className="header">
           <div className="logo-section">
-            <img src={logoMrisa} alt="MRISA" />
+            <img src={logoProStaff.url} alt="ProStaffSE" />
             <div>
-              <div className="company-name">MRISA de C.V.</div>
-              <div className="company-info">Manufactura y Servicios Industriales</div>
+              <div className="company-name">ProStaffSE</div>
+              <div className="company-info">Servicios Especializados</div>
             </div>
           </div>
           <div className="doc-info">
