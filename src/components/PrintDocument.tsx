@@ -88,10 +88,10 @@ const PrintDocument = ({
       <div ref={ref} style={{ position: "absolute", left: "-9999px", top: 0 }}>
         <div className="header">
           <div className="logo-section">
-            <img src={logoMrisa} alt="MRISA" />
+            <img src={logoProStaff.url} alt="ProStaffSE" />
             <div>
-              <div className="company-name">MRISA de C.V.</div>
-              <div className="company-info">Manufactura y Servicios Industriales</div>
+              <div className="company-name">ProStaffSE</div>
+              <div className="company-info">Servicios Especializados</div>
             </div>
           </div>
           <div className="doc-info">
