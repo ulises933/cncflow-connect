@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import logoMrisa from "@/assets/logo-mrisa.png";
+import logoProStaff from "@/assets/prostaffse-logo.png.asset.json";
 
 interface PrintDocumentProps {
   title: string;
