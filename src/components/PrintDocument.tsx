@@ -72,7 +72,7 @@ const PrintDocument = ({
       <div class="sig-line">Autorizó / Cliente</div>
     </div>
     <div class="footer">
-      <span>MRISA de C.V. — Documento generado el ${new Date().toLocaleDateString("es-MX")}</span>
+      <span>ProStaffSE — Documento generado el ${new Date().toLocaleDateString("es-MX")}</span>
       <span>${title} ${folio}</span>
     </div>
     </body></html>`);
