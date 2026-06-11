@@ -6,7 +6,7 @@ import {
   UserCog, Clock, CalendarOff, Palmtree, BadgeMinus,
   Banknote, CreditCard, FileBarChart, BookOpen, Truck, Receipt, LogOut, Shield
 } from "lucide-react";
-import logoMrisa from "@/assets/logo-mrisa.png";
+import logoProStaff from "@/assets/prostaffse-logo.png.asset.json";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navGroups = [
